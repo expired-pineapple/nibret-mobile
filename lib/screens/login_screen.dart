@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:nibret/models/user_model.dart';
+import 'package:nibret/screens/signup_screen.dart';
 import 'package:provider/provider.dart';
 import '../provider/auth_provider.dart';
 import '../services/auth_service.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:nibret/screens/signup_screen.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -99,11 +102,35 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 40),
+              const Row(
+                children: [
+                  Image(
+                      width: 48,
+                      height: 40,
+                      image: AssetImage('assets/Logo.png')),
+                  Text(
+                    'NIBRET',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
               const Text(
-                'Welcome Back',
+                'Welcome Back!',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const Text(
+                'Please enter your credentials to proceed',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w100,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -194,10 +221,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                icon: Image.asset(
-                  'assets/images/google_logo.png',
-                  height: 24,
-                ),
+                icon: const Icon(FontAwesomeIcons.google),
                 label: const Text('Continue with Google'),
               ),
               const SizedBox(height: 24),
@@ -207,7 +231,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                   const Text("Don't have an account?"),
                   TextButton(
                     onPressed: () {
-                      // Navigate to signup page
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => SignUpScreen(),
+                          ));
                     },
                     child: const Text('Sign Up'),
                   ),

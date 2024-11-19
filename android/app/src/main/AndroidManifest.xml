@@ -1,11 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <application
         android:label="Nibret"
         android:name="${applicationName}"
         android:icon="@mipmap/nibret">
-         <meta-data android:name="com.google.android.geo.API_KEY"
-               android:value="AIzaSyDUtty3InWVN6OqptMSVE4YWSWpd4-YyDw"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -34,6 +34,8 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyCSaZaTfi8v0g4ewcrmwOFtGwySSpQAPvc"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

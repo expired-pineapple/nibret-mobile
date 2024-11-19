@@ -97,18 +97,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile Settings'),
-        actions: [
-          TextButton(
-            onPressed: _isSaving ? null : _saveChanges,
-            child: _isSaving
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text('Save'),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20),
@@ -118,31 +106,42 @@ class _ProfileScreenState extends State<ProfileScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Profile Image
-              Center(
+              const Center(
                 child: Stack(
                   children: [
                     CircleAvatar(
-                        radius: 50, child: Icon(Icons.person, size: 50)),
-                    Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: CircleAvatar(
-                        radius: 18,
-                        backgroundColor: Theme.of(context).primaryColor,
-                        child: IconButton(
-                          icon: Icon(Icons.camera_alt,
-                              size: 18, color: Colors.white),
-                          onPressed: () {
-                            // Implement image upload
-                          },
-                        ),
+                        backgroundColor: Color.fromARGB(17, 10, 60, 129),
+                        radius: 50,
+                        child: Icon(
+                          Icons.person,
+                          size: 50,
+                          color: Color(0xFF0A3B81),
+                        )),
+                  ],
+                ),
+              ),
+              const Center(
+                child: Column(
+                  children: [
+                    Text(
+                      'Abebe Kebede',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
+                    ),
+                    Text(
+                      textAlign: TextAlign.center,
+                      'abebe.kebede@gmail.com',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.w100),
                     ),
                   ],
                 ),
               ),
 
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
 
               TextFormField(
                 controller: _nameController,
@@ -161,7 +160,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 },
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               TextFormField(
                 controller: _emailController,
@@ -183,7 +182,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 },
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               TextFormField(
                 controller: _phoneController,
@@ -192,7 +191,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  prefixIcon: Icon(Icons.phone_outlined),
+                  prefixIcon: const Icon(Icons.phone_outlined),
                   prefixText: '+251 ',
                 ),
                 validator: (value) {
@@ -202,6 +201,27 @@ class _ProfileScreenState extends State<ProfileScreen>
                   return null;
                 },
               ),
+              const SizedBox(height: 20),
+              Center(
+                  child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
+                  backgroundColor: const Color(0xFF0A3B81),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () {
+                  // Apply filters logic here
+                  Navigator.pop(context);
+                },
+                child: const Text(
+                  'Save Changes',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
+              ))
             ],
           ),
         ),

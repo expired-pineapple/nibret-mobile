@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:nibret/models/auction.dart';
+import 'package:nibret/services/auction_api.dart';
 
 class AuctionCard extends StatefulWidget {
   final Auction auction;
@@ -19,6 +20,36 @@ class AuctionCard extends StatefulWidget {
 
 class _AuctionCardState extends State<AuctionCard> {
   int _currentImageIndex = 0;
+  final ApiService _apiService = ApiService();
+
+  Future<void> _handleWishlistToggle(
+      Auction property, bool isWishlisted) async {
+    try {
+      await _apiService.toggleWishlist(
+        itemId: property.id,
+        isWishlisted: isWishlisted,
+        isProperty: false,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        property.isWishListed = isWishlisted;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update wishlist: ${e.toString()}'),
+          action: SnackBarAction(
+            label: 'Retry',
+            onPressed: () => _handleWishlistToggle(property, isWishlisted),
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,9 +152,7 @@ class _AuctionCardState extends State<AuctionCard> {
                     color:
                         widget.auction.isWishListed ? Colors.red : Colors.white,
                   ),
-                  onPressed: () {
-                    widget.onWishlistToggle(!widget.auction.isWishListed);
-                  },
+                  onPressed: () {},
                 ),
               ),
             ],

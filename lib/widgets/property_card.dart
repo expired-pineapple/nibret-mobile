@@ -1,6 +1,10 @@
+// ignore_for_file: avoid_types_as_parameter_names
+
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
+import 'package:nibret/screens/detail.dart';
+import 'package:nibret/services/property_api.dart';
 import '../models/property.dart';
 
 class PropertyCard extends StatefulWidget {
@@ -19,6 +23,37 @@ class PropertyCard extends StatefulWidget {
 
 class _PropertyCardState extends State<PropertyCard> {
   int _currentImageIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  final ApiService _apiService = ApiService();
+
+  Future<void> _handleWishlistToggle(
+      Property property, bool isWishlisted) async {
+    try {
+      await _apiService.toggleWishlist(property.id, isWishlisted);
+
+      if (!mounted) return;
+
+      setState(() {
+        property.isWishListed = isWishlisted;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update wishlist: ${e.toString()}'),
+          action: SnackBarAction(
+            label: 'Retry',
+            onPressed: () => _handleWishlistToggle(property, isWishlisted),
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,74 +165,86 @@ class _PropertyCardState extends State<PropertyCard> {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.property.name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  widget.property.location.name,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(Icons.bed, size: 16, color: Colors.grey[600]),
-                    const SizedBox(width: 4),
-                    Text('${widget.property.amenities.bedroom} Beds'),
-                    const SizedBox(width: 16),
-                    Icon(Icons.bathroom, size: 16, color: Colors.grey[600]),
-                    const SizedBox(width: 4),
-                    Text('${widget.property.amenities.bathroom} Baths'),
-                    const SizedBox(width: 16),
-                    Icon(Icons.square_foot, size: 16, color: Colors.grey[600]),
-                    const SizedBox(width: 4),
-                    Text('${widget.property.amenities.area} m²'),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              padding: const EdgeInsets.all(16),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PropertyDetails(
+                              widget.property.id,
+                              propertyId: widget.property.id,
+                            )),
+                  );
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '\$${widget.property.price.toStringAsFixed(2)}',
+                      widget.property.name,
                       style: const TextStyle(
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
                       ),
                     ),
-                    if (widget.property.discount > 0)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '${widget.property.discount}% OFF',
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.property.location.name,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.bed, size: 16, color: Colors.grey[600]),
+                        const SizedBox(width: 4),
+                        Text('${widget.property.amenities.bedroom} Beds'),
+                        const SizedBox(width: 16),
+                        Icon(Icons.bathroom, size: 16, color: Colors.grey[600]),
+                        const SizedBox(width: 4),
+                        Text('${widget.property.amenities.bathroom} Bathrooms'),
+                        const SizedBox(width: 16),
+                        Icon(Icons.square_foot,
+                            size: 16, color: Colors.grey[600]),
+                        const SizedBox(width: 4),
+                        Text('${widget.property.amenities.area} m²'),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '\$${widget.property.price.toStringAsFixed(2)}',
                           style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
                         ),
-                      ),
+                        if (widget.property.discount > 0)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '${widget.property.discount}% OFF',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
-          ),
+              )),
         ],
       ),
     );

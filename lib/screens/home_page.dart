@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nibret/widgets/MapWithCustomInfo.dart';
 import '../services/property_api.dart';
 import '../models/property.dart';
 import '../widgets/property_card.dart';
@@ -29,50 +30,30 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     "All",
     "Luxury Apartments",
     "Villa",
-    "Rentals"
+    "Rentals",
+    'Plot Land',
+    'Single Family',
+    'Apartment',
+    'Penthouse',
+    'Townhouse',
+    'Villa',
+    'Commercial',
+    'Condominium',
+    'Office Space',
+    'Warehouse',
   ];
 
   @override
   void initState() {
     super.initState();
-    _checkLocationPermission();
     _initializeData();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 14, vsync: this);
   }
 
   @override
   void dispose() {
     _apiService.dispose();
     super.dispose();
-  }
-
-  Future<void> _checkLocationPermission() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      // Request permission
-      permission = await Geolocator.requestPermission();
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      // Show a message that the permission is denied forever
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Location permission is permanently denied')),
-      );
-    } else {
-      // Permission granted, get the current location
-      _getCurrentLocation();
-    }
-  }
-
-  Future<void> _getCurrentLocation() async {
-    try {
-      _currentPosition = await Geolocator.getCurrentPosition();
-      // Use the current position (e.g., update the map)
-      print("Current Location: $_currentPosition");
-    } catch (e) {
-      print('Error getting location: $e');
-    }
   }
 
   Future<void> _initializeData() async {
@@ -271,16 +252,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            _error!,
+          const Text(
+            "Please connect to networkr",
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: _loadProperties,
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: const Text(
+              'Retry',
+              selectionColor: Colors.white,
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF0A3B81),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -368,6 +352,39 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       Tab(
                         text: "Rentals",
                         icon: Icon(Icons.cottage_outlined),
+                      ),
+                      Tab(
+                          text: "Office Space",
+                          icon: Icon(Icons.house_outlined)),
+                      Tab(
+                        text: "Condominium",
+                        icon: Icon(Icons.apartment),
+                      ),
+                      Tab(
+                        text: "Rentals",
+                        icon: Icon(Icons.cottage_outlined),
+                      ),
+                      Tab(text: "Plot Land", icon: Icon(Icons.house_outlined)),
+                      Tab(
+                        text: "Single Family",
+                        icon: Icon(Icons.apartment),
+                      ),
+                      Tab(
+                        text: "Penthouse",
+                        icon: Icon(Icons.villa_outlined),
+                      ),
+                      Tab(
+                        text: "Townhouse",
+                        icon: Icon(Icons.cottage_outlined),
+                      ),
+                      Tab(text: "Warehouse", icon: Icon(Icons.house_outlined)),
+                      Tab(
+                        text: "Commercial",
+                        icon: Icon(Icons.apartment),
+                      ),
+                      Tab(
+                        text: "Villa",
+                        icon: Icon(Icons.villa_outlined),
                       )
                     ],
                   ),
@@ -418,12 +435,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => PropertyMapScreen(
-                  properties: _properties,
-                  // Optional: specify initial coordinates
-                  latitude: 9.0,
-                  longitude: 45.0,
-                ),
+                builder: (_) => const MapScreen(),
               ));
         },
       ),

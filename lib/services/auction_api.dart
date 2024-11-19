@@ -3,7 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import '../models/property.dart';
+import 'package:nibret/models/auction.dart';
 
 class ApiService {
   static const String baseUrl = 'https://nibret-backend-1.onrender.com';
@@ -12,25 +12,24 @@ class ApiService {
   final http.Client _client = http.Client();
   static const Duration timeoutDuration = Duration(seconds: 30);
 
-  Future<List<Property>> getProperties() async {
+  Future<List<Auction>> getProperties() async {
     try {
       final response = await _client
-          .get(Uri.parse('$baseUrl/properties'))
+          .get(Uri.parse('$baseUrl/auctions/'))
           .timeout(timeoutDuration);
 
       if (response.statusCode == 200) {
         print(response.body);
         final List<dynamic> jsonList = json.decode(response.body);
 
-        final proprty =
-            jsonList.map((json) => Property.fromJson(json)).toList();
+        final proprty = jsonList.map((json) => Auction.fromJson(json)).toList();
         for (var property in proprty) {
-          print('Property: ${property.name}');
+          print('Auction: ${property.name}');
           for (var picture in property.pictures) {
             print('Image URL: ${picture.imageUrl}');
           }
         }
-        return jsonList.map((json) => Property.fromJson(json)).toList();
+        return jsonList.map((json) => Auction.fromJson(json)).toList();
       } else {
         throw HttpException(
             'Failed to load properties. Status: ${response.statusCode}');
@@ -47,19 +46,19 @@ class ApiService {
     }
   }
 
-  Future<Property> getProperty(String id) async {
+  Future<Auction> getAuction(String id) async {
     try {
       final response = await _client
-          .get(Uri.parse('$baseUrl/properties/$id'))
+          .get(Uri.parse('$baseUrl/auctions/$id'))
           .timeout(timeoutDuration);
 
       if (response.statusCode == 200) {
         print(response.body);
         final jsonData = json.decode(response.body);
 
-        final property = Property.fromJson(jsonData);
+        final auction = Auction.fromJson(jsonData);
 
-        return property;
+        return auction;
       } else {
         throw HttpException(
             'Failed to load properties. Status: ${response.statusCode}');
@@ -76,11 +75,20 @@ class ApiService {
     }
   }
 
-  Future<void> toggleWishlist(String propertyId, bool isWishlisted) async {
+// Flutter/Dart client code
+  Future<void> toggleWishlist({
+    required String itemId,
+    required bool isWishlisted,
+    required bool isProperty, // true for property, false for auction
+  }) async {
     try {
       final response = await _client.post(
-        Uri.parse('$baseUrl/properties/$propertyId/wishlist'),
-        body: {'is_wishlisted': isWishlisted.toString()},
+        Uri.parse('$baseUrl/wishlist/add_items'),
+        body: {
+          'item_id': itemId,
+          'is_wishlisted': isWishlisted.toString(),
+          'is_property': isProperty.toString(),
+        },
       ).timeout(timeoutDuration);
 
       if (response.statusCode != 200) {
