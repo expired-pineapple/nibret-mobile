@@ -5,7 +5,7 @@ import 'package:nibret/screens/auction_page.dart';
 import 'package:nibret/screens/home_page.dart';
 import 'package:nibret/screens/login_screen.dart';
 import 'package:nibret/screens/profile_screen.dart';
-import 'package:nibret/screens/wishlists.dart';
+import 'package:nibret/screens/wishlist_screen.dart';
 import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
@@ -24,7 +24,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     pages = [
       const HomePage(),
-      const Wishlists(),
+      const WishlistPage(),
       const AuctionPage(),
       const ProfileScreen(),
     ];
