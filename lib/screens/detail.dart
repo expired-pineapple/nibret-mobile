@@ -3,6 +3,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:nibret/models/property.dart';
+import 'package:nibret/provider/favorite_provider.dart';
 import 'package:nibret/screens/request_tour.dart';
 import 'package:nibret/services/property_api.dart';
 import 'package:nibret/widgets/expandable_text.dart';
@@ -89,6 +90,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
 
   @override
   Widget build(BuildContext context) {
+    final provider = FavoriteProvider.of(context);
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -175,15 +177,16 @@ class _PropertyDetailsState extends State<PropertyDetails>
                         ),
                         IconButton(
                           icon: Icon(
-                            _property!.isWishListed
+                            provider.isExist(widget.propertyId)
                                 ? Icons.favorite
                                 : Icons.favorite_border,
-                            color: _property!.isWishListed
+                            color: provider.isExist(widget.propertyId)
                                 ? Colors.red
                                 : Colors.white,
                           ),
                           onPressed: () {
-                            widget.onWishlistToggle(_property!.isWishListed);
+                            provider.toggleFavorite(widget.propertyId);
+                            // widget.onWishlistToggle(_property!.isWishListed);
                           },
                         ),
                       ],

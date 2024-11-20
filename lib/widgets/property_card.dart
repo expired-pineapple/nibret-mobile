@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
+import 'package:nibret/provider/favorite_provider.dart';
 import 'package:nibret/screens/detail.dart';
 import 'package:nibret/services/property_api.dart';
 import '../models/property.dart';
@@ -57,6 +58,7 @@ class _PropertyCardState extends State<PropertyCard> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = FavoriteProvider.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -150,15 +152,16 @@ class _PropertyCardState extends State<PropertyCard> {
                 right: 10,
                 child: IconButton(
                   icon: Icon(
-                    widget.property.isWishListed
+                    provider.isExist(widget.property.id)
                         ? Icons.favorite
                         : Icons.favorite_border,
-                    color: widget.property.isWishListed
+                    color: provider.isExist(widget.property.id)
                         ? Colors.red
                         : Colors.white,
                   ),
                   onPressed: () {
-                    widget.onWishlistToggle(!widget.property.isWishListed);
+                    provider.toggleFavorite(widget.property.id);
+                    // widget.onWishlistToggle(!widget.property.isWishListed);
                   },
                 ),
               ),
