@@ -253,7 +253,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text(
-            "Please connect to networkr",
+            "Please connect to network",
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16),
           ),

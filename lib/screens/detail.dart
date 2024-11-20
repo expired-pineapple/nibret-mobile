@@ -1,6 +1,7 @@
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:nibret/models/property.dart';
 import 'package:nibret/screens/request_tour.dart';
 import 'package:nibret/services/property_api.dart';
@@ -19,8 +20,9 @@ class PropertyDetails extends StatefulWidget {
 class _PropertyDetailsState extends State<PropertyDetails>
     with TickerProviderStateMixin {
   int _currentImageIndex = 0;
+  GoogleMapController? _mapController;
   final ApiService _apiService = ApiService();
-  Property? _property; // Changed to nullable
+  Property? _property;
   bool _isLoading = true;
   String? _error;
   List<bool> wishlist = List.generate(10, (index) => false);
@@ -28,7 +30,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
   @override
   void initState() {
     super.initState();
-    _initializeData(); // Initialize data when widget is created
+    _initializeData();
   }
 
   Future<void> _initializeData() async {
@@ -66,15 +68,43 @@ class _PropertyDetailsState extends State<PropertyDetails>
     return _loadProperties();
   }
 
+  Widget _buildAmenityRow({required IconData icon, required String text}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Icon(icon, size: 24, color: Colors.grey[600]),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            fontFamily: 'Poppins',
+            color: Color(0xFF4A4A4A),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_error != null) {
+      return Scaffold(
+        body: Center(child: Text('Error: $_error')),
+      );
     }
 
     return Scaffold(
-        backgroundColor: Colors.white,
-        body: Column(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Stack(
@@ -129,78 +159,74 @@ class _PropertyDetailsState extends State<PropertyDetails>
                     );
                   },
                 ),
-                // Indicators
                 Positioned(
-                  bottom: 16,
+                  top: MediaQuery.of(context).padding.top,
                   left: 0,
                   right: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: _property!.pictures.asMap().entries.map((entry) {
-                      return Container(
-                        width: 8,
-                        height: 8,
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _currentImageIndex == entry.key
-                              ? Colors.white
-                              : Colors.white.withOpacity(0.4),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon:
+                              const Icon(Icons.arrow_back, color: Colors.white),
+                          onPressed: () => Navigator.pop(context),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                // Wishlist button
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: IconButton(
-                    icon: Icon(
-                      _property!.isWishListed
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color:
-                          _property!.isWishListed ? Colors.red : Colors.white,
+                        IconButton(
+                          icon: Icon(
+                            _property!.isWishListed
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color: _property!.isWishListed
+                                ? Colors.red
+                                : Colors.white,
+                          ),
+                          onPressed: () {
+                            widget.onWishlistToggle(_property!.isWishListed);
+                          },
+                        ),
+                      ],
                     ),
-                    onPressed: () {
-                      widget.onWishlistToggle(_property!.isWishListed);
-                    },
                   ),
                 ),
               ],
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+              padding: const EdgeInsets.all(24.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     _property!.name,
                     style: const TextStyle(
                       color: Color(0xFF252525),
-                      fontSize: 26,
+                      fontSize: 24,
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.pin_drop_outlined,
                         size: 20,
+                        color: Colors.grey[600],
                       ),
+                      const SizedBox(width: 4),
                       Text(
                         _property!.location.name,
                         style: const TextStyle(
-                          color: Color.fromARGB(255, 131, 131, 131),
-                          fontSize: 18,
+                          color: Color(0xFF838383),
+                          fontSize: 16,
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w400,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -215,18 +241,21 @@ class _PropertyDetailsState extends State<PropertyDetails>
                       ElevatedButton(
                         onPressed: () {
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const RequestTour(
-                                  property: false,
-                                  auctionId: '1',
-                                ),
-                              ));
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const RequestTour(
+                                property: true,
+                                auctionId: '1',
+                              ),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF0A3B81),
                           padding: const EdgeInsets.symmetric(
-                              vertical: 16, horizontal: 14),
+                            vertical: 16,
+                            horizontal: 24,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -238,80 +267,105 @@ class _PropertyDetailsState extends State<PropertyDetails>
                             fontSize: 16,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.bold,
-                            height: 0,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  Container(
-                    height: 9,
-                    padding: const EdgeInsets.only(
-                        top: 8, left: 24, right: 24, bottom: 10),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          height: 1,
-                          decoration: const BoxDecoration(
-                              color: Color.fromARGB(255, 107, 107, 107)),
-                        ),
-                      ],
-                    ),
-                  ),
+                  const SizedBox(height: 24),
+                  const Divider(color: Color(0xFF6B6B6B)),
+                  const SizedBox(height: 16),
                   ExpandableText(
                     text: _property!.description,
                     maxLines: 4,
                   ),
+                  const SizedBox(height: 24),
                   const Text(
                     "What this place offers",
                     style: TextStyle(
-                      color: Color.fromARGB(255, 131, 131, 131),
-                      fontSize: 18,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  Column(children: [
-                    Row(
-                      children: [
-                        Icon(Icons.bathroom, size: 16, color: Colors.grey[600]),
-                        const SizedBox(width: 4),
-                        Text('${_property!.amenities.bathroom} Bathrooms'),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.square_foot,
-                            size: 16, color: Colors.grey[600]),
-                        const SizedBox(width: 4),
-                        Text('${_property!.amenities.area} m²')
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.bed, size: 16, color: Colors.grey[600]),
-                        const SizedBox(width: 4),
-                        Text('${_property!.amenities.bedroom} Beds')
-                      ],
-                    )
-                  ]),
-                  const Text(
-                    "Where you'll be",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
+                      color: Color(0xFF252525),
+                      fontSize: 24,
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildAmenityRow(
+                          icon: Icons.bathroom,
+                          text: '${_property!.amenities.bathroom} Bathrooms',
+                        ),
+                        const SizedBox(height: 12),
+                        _buildAmenityRow(
+                          icon: Icons.square_foot,
+                          text: '${_property!.amenities.area} m²',
+                        ),
+                        const SizedBox(height: 12),
+                        _buildAmenityRow(
+                          icon: Icons.bed,
+                          text: '${_property!.amenities.bedroom} Beds',
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    "Where you'll be",
+                    style: TextStyle(
+                      color: Color(0xFF252525),
+                      fontSize: 24,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 200,
+                    width: double.infinity,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: GoogleMap(
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(
+                            _property!.location.latitude,
+                            _property!.location.longitude,
+                          ),
+                          zoom: 15,
+                        ),
+                        markers: {
+                          Marker(
+                            markerId: const MarkerId('property'),
+                            position: LatLng(
+                              _property!.location.latitude,
+                              _property!.location.longitude,
+                            ),
+                            infoWindow: InfoWindow(title: _property!.name),
+                          ),
+                        },
+                        onMapCreated: (GoogleMapController controller) {
+                          _mapController = controller;
+                        },
+                        myLocationEnabled: false,
+                        zoomControlsEnabled: false,
+                        mapToolbarEnabled: false,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: MediaQuery.of(context).padding.bottom + 24),
                 ],
               ),
             ),
           ],
-        ));
+        ),
+      ),
+    );
   }
 }

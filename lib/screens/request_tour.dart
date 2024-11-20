@@ -109,54 +109,7 @@ class _RequestTourState extends State<RequestTour> {
                                   .format(_selectedDate!),
                         ),
                         onTap: () => _selectDate(context),
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.access_time),
-                        title: Text(
-                          _selectedTime == null
-                              ? 'Select Time'
-                              : _selectedTime!.format(context),
-                        ),
-                        onTap: () => _selectTime(context),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Preferred Communication Method',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      RadioListTile(
-                        title: const Text('Phone'),
-                        value: 'Phone',
-                        groupValue: _communicationPreference,
-                        onChanged: (value) {
-                          setState(() {
-                            _communicationPreference = value.toString();
-                          });
-                        },
-                      ),
-                      RadioListTile(
-                        title: const Text('Email'),
-                        value: 'Email',
-                        groupValue: _communicationPreference,
-                        onChanged: (value) {
-                          setState(() {
-                            _communicationPreference = value.toString();
-                          });
-                        },
-                      ),
+                      )
                     ],
                   ),
                 ),

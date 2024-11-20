@@ -22,111 +22,105 @@ class PropertyMapScreen extends StatefulWidget {
   State<PropertyMapScreen> createState() => _PropertyMapScreenState();
 }
 
-class _PropertyMapScreenState extends State<PropertyMapScreen>
-    with WidgetsBindingObserver {
-  late final CustomInfoWindowController _customInfoWindowController;
-  late final PanelController _panelController;
+class _PropertyMapScreenState extends State<PropertyMapScreen> {
+  final CustomInfoWindowController _customInfoWindowController =
+      CustomInfoWindowController();
+  final PanelController _panelController = PanelController();
+  final ValueNotifier<bool> _isLoadingLocation = ValueNotifier<bool>(false);
+  final ValueNotifier<Property?> _selectedProperty =
+      ValueNotifier<Property?>(null);
 
   GoogleMapController? _mapController;
-  LatLng _currentPosition = const LatLng(9.007923, 38.767821);
-  Property? _selectedProperty;
-  bool _isMapReady = false;
-  bool _isLoadingLocation = false;
+  late final ValueNotifier<LatLng> _currentPosition;
+  late final ValueNotifier<bool> _isMapReady;
+  MapType _currentMapType = MapType.normal;
 
   @override
   void initState() {
     super.initState();
-    _customInfoWindowController = CustomInfoWindowController();
-    _panelController = PanelController();
-    WidgetsBinding.instance.addObserver(this);
+    _currentPosition = ValueNotifier<LatLng>(const LatLng(9.007923, 38.767821));
+    _isMapReady = ValueNotifier<bool>(false);
     _initializeMap();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     _mapController?.dispose();
     _customInfoWindowController.dispose();
+    _currentPosition.dispose();
+    _isMapReady.dispose();
+    _isLoadingLocation.dispose();
+    _selectedProperty.dispose();
     super.dispose();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && _mapController != null) {
-      setState(() {});
-    }
-  }
-
   Future<void> _getCurrentLocation() async {
-    if (_isLoadingLocation) return;
-
-    setState(() => _isLoadingLocation = true);
+    if (_isLoadingLocation.value) return;
+    _isLoadingLocation.value = true;
 
     try {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          setState(() => _isLoadingLocation = false);
-          return;
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        setState(() => _isLoadingLocation = false);
+      final permission = await _checkLocationPermission();
+      if (!permission) {
+        _isLoadingLocation.value = false;
         return;
       }
 
-      Position position = await Geolocator.getCurrentPosition(
+      final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
 
-      setState(() {
-        _currentPosition = LatLng(position.latitude, position.longitude);
-        _isLoadingLocation = false;
-      });
+      _currentPosition.value = LatLng(position.latitude, position.longitude);
 
-      if (_mapController != null && _isMapReady) {
-        await _mapController!.animateCamera(
-          CameraUpdate.newLatLng(
-            LatLng(
-              widget.latitude ?? position.latitude,
-              widget.longitude ?? position.longitude,
-            ),
-          ),
+      if (_mapController != null && _isMapReady.value) {
+        await _animateToPosition(
+          latitude: widget.latitude ?? position.latitude,
+          longitude: widget.longitude ?? position.longitude,
         );
       }
     } catch (e) {
-      setState(() => _isLoadingLocation = false);
       debugPrint('Error getting location: $e');
+    } finally {
+      _isLoadingLocation.value = false;
     }
   }
 
+  Future<bool> _checkLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      return permission != LocationPermission.denied;
+    }
+    return permission != LocationPermission.deniedForever;
+  }
+
+  Future<void> _animateToPosition({
+    required double latitude,
+    required double longitude,
+  }) async {
+    await _mapController?.animateCamera(
+      CameraUpdate.newLatLng(LatLng(latitude, longitude)),
+    );
+  }
+
   Set<Marker> _buildMarkers() {
-    return widget.properties.map((property) {
-      return Marker(
-        markerId: MarkerId(property.id),
-        position: LatLng(
-          property.location.latitude,
-          property.location.longitude,
-        ),
-        icon: _selectedProperty?.id == property.id
-            ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue)
-            : BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-        onTap: () => _onMarkerTapped(property),
-      );
-    }).toSet();
+    return {
+      for (final property in widget.properties)
+        Marker(
+          markerId: MarkerId(property.id),
+          position: LatLng(
+            property.location.latitude,
+            property.location.longitude,
+          ),
+          icon: _selectedProperty.value?.id == property.id
+              ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue)
+              : BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          onTap: () => _onMarkerTapped(property),
+        )
+    };
   }
 
   void _onMarkerTapped(Property property) {
-    setState(() => _selectedProperty = property);
-
-    _mapController?.animateCamera(
-      CameraUpdate.newLatLng(
-        LatLng(property.location.latitude, property.location.longitude),
-      ),
-    );
-
+    _selectedProperty.value = property;
     _showPropertyDetails(property);
   }
 
@@ -135,35 +129,40 @@ class _PropertyMapScreenState extends State<PropertyMapScreen>
       _panelController.open();
     }
 
-    _customInfoWindowController.addInfoWindow!(
-      _buildInfoWindowContent(property),
-      LatLng(property.location.latitude, property.location.longitude),
-    );
+    Future.delayed(const Duration(milliseconds: 50), () {
+      if (!mounted) return;
+
+      _animateToPosition(
+        latitude: property.location.latitude,
+        longitude: property.location.longitude,
+      ).then((_) {
+        if (mounted) {
+          _customInfoWindowController.addInfoWindow!(
+            _buildInfoWindowContent(property),
+            LatLng(property.location.latitude, property.location.longitude),
+          );
+        }
+      });
+    });
   }
 
   Widget _buildInfoWindowContent(Property property) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+    return SizedBox(
+      width: 300,
+      height: 200,
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: _buildPropertyImage(property)),
+              const SizedBox(height: 8),
+              _buildPropertyInfo(property),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildPropertyImage(property),
-          const SizedBox(height: 8),
-          _buildPropertyInfo(property),
-        ],
+        ),
       ),
     );
   }
@@ -173,11 +172,8 @@ class _PropertyMapScreenState extends State<PropertyMapScreen>
       borderRadius: BorderRadius.circular(8),
       child: Image.network(
         property.pictures[0].imageUrl,
-        height: 120,
-        width: double.infinity,
         fit: BoxFit.cover,
         errorBuilder: (_, __, ___) => Container(
-          height: 120,
           color: Colors.grey[300],
           child: const Icon(Icons.error),
         ),
@@ -188,6 +184,7 @@ class _PropertyMapScreenState extends State<PropertyMapScreen>
   Widget _buildPropertyInfo(Property property) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           '\$${property.price.toStringAsFixed(2)}',
@@ -210,22 +207,26 @@ class _PropertyMapScreenState extends State<PropertyMapScreen>
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
     _customInfoWindowController.googleMapController = controller;
-    setState(() => _isMapReady = true);
+    _isMapReady.value = true;
 
-    if (_currentPosition != null) {
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLng(
-          LatLng(
-            widget.latitude ?? _currentPosition!.latitude,
-            widget.longitude ?? _currentPosition!.longitude,
-          ),
-        ),
+    if (_currentPosition.value != null) {
+      _animateToPosition(
+        latitude: widget.latitude ?? _currentPosition.value.latitude,
+        longitude: widget.longitude ?? _currentPosition.value.longitude,
       );
     }
   }
 
   Future<void> _initializeMap() async {
     await _getCurrentLocation();
+  }
+
+  void _toggleMapType() {
+    setState(() {
+      _currentMapType = _currentMapType == MapType.normal
+          ? MapType.satellite
+          : MapType.normal;
+    });
   }
 
   @override
@@ -235,73 +236,78 @@ class _PropertyMapScreenState extends State<PropertyMapScreen>
         title: const Text('Properties Map'),
         elevation: 0,
       ),
-      body: _buildBody(),
+      body: SlidingUpPanel(
+        controller: _panelController,
+        panel: _buildPanel(),
+        collapsed: Container(),
+        body: _buildMap(),
+        minHeight: 0,
+        maxHeight: MediaQuery.of(context).size.height * 0.7,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+        onPanelClosed: () => _selectedProperty.value = null,
+      ),
       floatingActionButton: _buildFloatingActionButtons(),
     );
   }
 
-  Widget _buildBody() {
-    return SlidingUpPanel(
-      controller: _panelController,
-      panel: _buildPanel(),
-      collapsed: Container(),
-      body: _buildMap(),
-      minHeight: 0,
-      maxHeight: MediaQuery.of(context).size.height * 0.7,
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-      onPanelClosed: () => setState(() => _selectedProperty = null),
-    );
-  }
-
   Widget _buildPanel() {
-    if (_selectedProperty == null) return Container();
+    return ValueListenableBuilder<Property?>(
+      valueListenable: _selectedProperty,
+      builder: (context, property, _) {
+        if (property == null) return const SizedBox.shrink();
 
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
+        return SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                PropertyCard(
+                  property: property,
+                  onWishlistToggle: (newValue) {
+                    _selectedProperty.value = property.copyWith(
+                      isWishListed: newValue,
+                    );
+                  },
+                ),
+              ],
             ),
-            PropertyCard(
-              property: _selectedProperty!,
-              onWishlistToggle: (newValue) {
-                setState(() {
-                  _selectedProperty = _selectedProperty!.copyWith(
-                    isWishListed: newValue,
-                  );
-                });
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildMap() {
     return Stack(
       children: [
-        GoogleMap(
-          onMapCreated: _onMapCreated,
-          initialCameraPosition: CameraPosition(
-            target: LatLng(
-              widget.latitude ?? _currentPosition!.latitude,
-              widget.longitude ?? _currentPosition!.longitude,
-            ),
-            zoom: 15,
-          ),
-          markers: _buildMarkers(),
-          myLocationEnabled: true,
-          myLocationButtonEnabled: false,
-          onTap: (_) => _customInfoWindowController.hideInfoWindow!(),
-          onCameraMove: (_) => _customInfoWindowController.onCameraMove!(),
+        ValueListenableBuilder<LatLng>(
+          valueListenable: _currentPosition,
+          builder: (context, position, _) {
+            return GoogleMap(
+              onMapCreated: _onMapCreated,
+              initialCameraPosition: CameraPosition(
+                target: LatLng(
+                  widget.latitude ?? position.latitude,
+                  widget.longitude ?? position.longitude,
+                ),
+                zoom: 15,
+              ),
+              mapType: _currentMapType,
+              markers: _buildMarkers(),
+              myLocationEnabled: true,
+              myLocationButtonEnabled: false,
+              onTap: (_) => _customInfoWindowController.hideInfoWindow!(),
+              onCameraMove: (_) => _customInfoWindowController.onCameraMove!(),
+            );
+          },
         ),
         CustomInfoWindow(
           controller: _customInfoWindowController,
@@ -315,16 +321,20 @@ class _PropertyMapScreenState extends State<PropertyMapScreen>
   }
 
   Widget _buildDragHandle() {
-    return GestureDetector(
-      onTap: () => Navigator.pop(context),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 170, vertical: 5),
-        child: Container(
-          height: 5,
-          width: 50,
-          decoration: BoxDecoration(
-            color: Colors.black54,
-            borderRadius: BorderRadius.circular(10),
+    return Positioned(
+      top: 5,
+      left: 0,
+      right: 0,
+      child: GestureDetector(
+        onTap: () => Navigator.pop(context),
+        child: Center(
+          child: Container(
+            height: 5,
+            width: 50,
+            decoration: BoxDecoration(
+              color: Colors.black54,
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         ),
       ),
@@ -337,25 +347,28 @@ class _PropertyMapScreenState extends State<PropertyMapScreen>
       children: [
         FloatingActionButton(
           heroTag: 'layers',
-          onPressed: () {
-            // Implement map type toggle
-          },
+          onPressed: _toggleMapType,
           child: const Icon(Icons.layers),
         ),
         const SizedBox(height: 16),
-        FloatingActionButton(
-          heroTag: 'location',
-          onPressed: _getCurrentLocation,
-          child: _isLoadingLocation
-              ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
-                )
-              : const Icon(Icons.my_location),
+        ValueListenableBuilder<bool>(
+          valueListenable: _isLoadingLocation,
+          builder: (context, isLoading, _) {
+            return FloatingActionButton(
+              heroTag: 'location',
+              onPressed: _getCurrentLocation,
+              child: isLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Icon(Icons.my_location),
+            );
+          },
         ),
       ],
     );

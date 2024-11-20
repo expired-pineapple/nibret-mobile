@@ -60,8 +60,8 @@ class Auction {
   final String name;
   final String description;
   final String status;
-  final DateTime startDate;
-  final DateTime endDate;
+  final String startDate;
+  final String endDate;
   bool isWishListed;
 
   Auction(
@@ -87,8 +87,8 @@ class Auction {
       description: json['description'],
       startingBid: json['starting_bid'],
       status: json['status'],
-      startDate: DateTime.parse(json['start_date']),
-      endDate: DateTime.parse(json['end_date']),
+      startDate: json['start_date'],
+      endDate: json['end_date'],
     );
   }
 

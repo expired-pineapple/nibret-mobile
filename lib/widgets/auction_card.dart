@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:nibret/models/auction.dart';
+import 'package:nibret/screens/auction_detail.dart';
 import 'package:nibret/services/auction_api.dart';
 
 class AuctionCard extends StatefulWidget {
@@ -158,42 +159,61 @@ class _AuctionCardState extends State<AuctionCard> {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.auction.name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  widget.auction.location.name,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
+              padding: const EdgeInsets.all(16),
+              child: InkWell(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.calendar_month_outlined,
-                        size: 16, color: Colors.grey[600]),
-                    const SizedBox(width: 4),
-                    Text('Start Date: ${widget.auction.startDate}'),
-                    const SizedBox(width: 16),
-                    Icon(Icons.attach_money_sharp,
-                        size: 16, color: Colors.grey[600]),
-                    const SizedBox(width: 4),
-                    Text('${widget.auction.startingBid} Starting bid'),
-                    const SizedBox(width: 16),
+                    Text(
+                      widget.auction.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.auction.location.name,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Column(
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.calendar_month_outlined,
+                                size: 25, color: Colors.black),
+                            const SizedBox(width: 4),
+                            Text('Start Date: ${widget.auction.startDate}')
+                          ],
+                        ),
+                        const SizedBox(width: 16),
+                        Row(
+                          children: [
+                            const Icon(Icons.attach_money_sharp,
+                                size: 25, color: Colors.black),
+                            const SizedBox(width: 4),
+                            Text('${widget.auction.startingBid} Starting bid'),
+                          ],
+                        ),
+                        const SizedBox(width: 16),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
-          ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => AuctionDetail(
+                              widget.auction.id,
+                              auctionId: widget.auction.id,
+                            )),
+                  );
+                },
+              )),
         ],
       ),
     );

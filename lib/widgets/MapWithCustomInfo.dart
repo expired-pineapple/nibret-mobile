@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:nibret/models/property.dart';
+import 'package:nibret/screens/detail.dart';
 import 'package:nibret/services/property_api.dart';
 
 class MapScreen extends StatefulWidget {
@@ -150,7 +151,7 @@ class _MapScreenState extends State<MapScreen> {
           ),
           CustomInfoWindow(
             controller: _customInfoWindowController,
-            height: size.height * 0.34,
+            height: size.height * 0.28,
             width: size.width * 0.85,
             offset: 50,
           ),
@@ -186,11 +187,11 @@ class _MapScreenState extends State<MapScreen> {
             onTap: () {
               _customInfoWindowController.addInfoWindow!(
                 Container(
-                  height: size.height,
-                  width: size.width,
+                  height: size.height * 0.2,
+                  width: size.width * 0.5,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(25),
+                    borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.2),
@@ -204,6 +205,7 @@ class _MapScreenState extends State<MapScreen> {
                       Stack(
                         children: [
                           SizedBox(
+                            height: size.height * 0.203,
                             child: ClipRRect(
                               borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(25),
@@ -220,64 +222,46 @@ class _MapScreenState extends State<MapScreen> {
                               ),
                             ),
                           ),
-                          Positioned(
-                            top: 10,
-                            left: 14,
-                            right: 14,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Row(
-                                  children: [
-                                    CircleAvatar(
-                                      backgroundColor: Colors.white,
-                                      child: IconButton(
-                                        icon: const Icon(Icons.favorite_border),
-                                        onPressed: () {},
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 8,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              place.location.name,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text.rich(
-                              TextSpan(
-                                text: '\$${place.price}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 8,
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => PropertyDetails(
+                                          place.id,
+                                          propertyId: place.id,
+                                        )),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  place.location.name,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                                children: const [
+                                Text.rich(
                                   TextSpan(
-                                    text: "/night",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.normal,
+                                    text: '\$${place.price}',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
+                          )),
                     ],
                   ),
                 ),
