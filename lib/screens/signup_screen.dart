@@ -79,7 +79,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               textColor: Colors.white,
               fontSize: 16.0);
           Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => LoginPage()));
+              .push(MaterialPageRoute(builder: (context) => LoginScreen()));
         } else {
           Fluttertoast.showToast(
               msg: response.body,
@@ -194,7 +194,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => LoginPage(),
+                            builder: (_) => LoginScreen(),
                           )),
                       child: const Text("Log in",
                           style: TextStyle(color: Color(0XFF163C9F))),

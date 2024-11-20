@@ -11,28 +11,35 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
+    super.initState();
+    _navigateToMain();
+  }
+
+  void _navigateToMain() {
     Future.delayed(
       const Duration(seconds: 2),
-      () => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const MainScreen(),
-        ),
-      ),
+      () {
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            // Use pushReplacement instead of push
+            MaterialPageRoute(
+              builder: (context) => const MainScreen(),
+            ),
+          );
+        }
+      },
     );
-
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: Container(
-          padding: const EdgeInsets.all(50),
-          child: Center(
-            child: Image.asset('assets/Logo.png', height: 99, width: 120),
-          ),
+    return Scaffold(
+      // Remove SafeArea since it's not needed here
+      backgroundColor: Colors.white,
+      body: Container(
+        padding: const EdgeInsets.all(50),
+        child: Center(
+          child: Image.asset('assets/Logo.png', height: 99, width: 120),
         ),
       ),
     );

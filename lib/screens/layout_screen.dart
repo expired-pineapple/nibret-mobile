@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nibret/provider/auth_provider.dart';
 import 'package:nibret/screens/auction_page.dart';
 import 'package:nibret/screens/home_page.dart';
+import 'package:nibret/screens/login_screen.dart';
 import 'package:nibret/screens/profile_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -29,17 +30,17 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _onTabTapped(BuildContext context, int index) {
-    // if (index == 3) {
-    //   // Profile tab index
-    //   final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    //   if (!authProvider.isAuthenticated) {
-    //     Navigator.pushReplacement(
-    //       context,
-    //       MaterialPageRoute(builder: (context) => const LoginPage()),
-    //     );
-    //     return; // Exit the function to prevent setting the selected index
-    //   }
-    // }
+    if (index == 3) {
+      // Profile tab index
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      if (!authProvider.isAuthenticated) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+        return; // Exit the function to prevent setting the selected index
+      }
+    }
     setState(() {
       selectedIndex = index;
     });

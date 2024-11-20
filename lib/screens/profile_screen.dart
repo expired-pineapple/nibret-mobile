@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nibret/models/user_model.dart';
 import 'package:nibret/services/auth_service.dart';
+import 'package:nibret/provider/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -14,7 +16,8 @@ class _ProfileScreenState extends State<ProfileScreen>
   final _formKey = GlobalKey<FormState>();
   final _authService = AuthService();
 
-  late TextEditingController _nameController;
+  late TextEditingController _firstNameController;
+  late TextEditingController _lastNameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
 
@@ -25,7 +28,8 @@ class _ProfileScreenState extends State<ProfileScreen>
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController();
+    _firstNameController = TextEditingController();
+    _lastNameController = TextEditingController();
     _emailController = TextEditingController();
     _phoneController = TextEditingController();
     _loadUserData();
@@ -37,7 +41,8 @@ class _ProfileScreenState extends State<ProfileScreen>
       final user = await _authService.getUser();
       setState(() {
         _user = user;
-        _nameController.text = user.firstName + user.lastName;
+        _firstNameController.text = user.firstName;
+        _lastNameController.text = user.lastName;
         _emailController.text = user.email;
         _phoneController.text = user.phone;
         _isLoading = false;
@@ -62,7 +67,10 @@ class _ProfileScreenState extends State<ProfileScreen>
     try {
       setState(() => _isSaving = true);
       final updatedUser = await _authService.updateUser(
-          _nameController.text, _emailController.text, _phoneController.text);
+          _firstNameController.text,
+          _lastNameController.text,
+          _emailController.text,
+          _phoneController.text);
 
       setState(() {
         _user = updatedUser as User?;
@@ -80,9 +88,27 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
+  Future<void> _logout() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        await authProvider.logout();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Logged out successfully')),
+        );
+      } catch (e) {
+        setState(() => _isSaving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to logout')),
+        );
+      }
+    }
+  }
+
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
     super.dispose();
@@ -97,6 +123,9 @@ class _ProfileScreenState extends State<ProfileScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile Settings'),
+        actions: [
+          IconButton(onPressed: _logout, icon: const Icon(Icons.logout_rounded))
+        ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20),
@@ -120,20 +149,34 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ],
                 ),
               ),
-              const Center(
+              Center(
                 child: Column(
                   children: [
-                    Text(
-                      'Abebe Kebede',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _user!.firstName,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _user!.lastName,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                     Text(
                       textAlign: TextAlign.center,
-                      'abebe.kebede@gmail.com',
+                      _user!.email,
                       style:
                           TextStyle(fontSize: 24, fontWeight: FontWeight.w100),
                     ),
@@ -144,13 +187,13 @@ class _ProfileScreenState extends State<ProfileScreen>
               const SizedBox(height: 30),
 
               TextFormField(
-                controller: _nameController,
+                controller: _firstNameController,
                 decoration: InputDecoration(
-                  labelText: 'Full Name',
+                  labelText: 'First Name',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  prefixIcon: Icon(Icons.person_outline),
+                  prefixIcon: const Icon(Icons.person_outline),
                 ),
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
@@ -159,7 +202,23 @@ class _ProfileScreenState extends State<ProfileScreen>
                   return null;
                 },
               ),
-
+              const SizedBox(width: 4),
+              TextFormField(
+                controller: _lastNameController,
+                decoration: InputDecoration(
+                  labelText: 'First Name',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  prefixIcon: const Icon(Icons.person_outline),
+                ),
+                validator: (value) {
+                  if (value?.isEmpty ?? true) {
+                    return 'Please enter your name';
+                  }
+                  return null;
+                },
+              ),
               const SizedBox(height: 20),
 
               TextFormField(

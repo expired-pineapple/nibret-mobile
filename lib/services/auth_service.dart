@@ -16,6 +16,7 @@ class AuthService {
   static const Duration timeoutDuration = Duration(seconds: 30);
   // Token management methods
   Future<void> saveToken(String token) async {
+    print(token);
     await _storage.write(key: _tokenKey, value: token);
   }
 
@@ -29,6 +30,7 @@ class AuthService {
 
   // User data management
   Future<void> saveUserData(Map<String, dynamic> userData) async {
+    print("here");
     await _storage.write(key: _userKey, value: json.encode(userData));
   }
 
@@ -46,20 +48,31 @@ class AuthService {
 
   Future<User> getUser() async {
     try {
-      final response = await _client
-          .get(Uri.parse('$baseUrl/accounts/user/'))
-          .timeout(timeoutDuration);
+      // Get the token from secure storage
+      final token = await getToken();
+
+      if (token == null) {
+        throw const HttpException('No authentication token found');
+      }
+
+      final response = await _client.get(
+        Uri.parse('$baseUrl/accounts/user/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      ).timeout(timeoutDuration);
 
       if (response.statusCode == 200) {
         print(response.body);
         final jsonData = json.decode(response.body);
-
         final userResponse = User.fromJson(jsonData);
-
         return userResponse;
+      } else if (response.statusCode == 401) {
+        throw const HttpException('Unauthorized: Invalid or expired token');
       } else {
         throw HttpException(
-            'Failed to load properties. Status: ${response.statusCode}');
+            'Failed to load user data. Status: ${response.statusCode}');
       }
     } on SocketException catch (e) {
       throw HttpException(
@@ -69,7 +82,7 @@ class AuthService {
     } on HttpException catch (e) {
       throw HttpException(e.message);
     } catch (e) {
-      throw HttpException('An unexpected error occurred listing here: $e');
+      throw HttpException('An unexpected error occurred: $e');
     }
   }
 
@@ -77,7 +90,7 @@ class AuthService {
       String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/accounts/login'),
+        Uri.parse('$baseUrl/accounts/login/'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'email': email,
@@ -97,12 +110,13 @@ class AuthService {
         throw Exception('Failed to login: ${response.body}');
       }
     } catch (e) {
+      print(e);
       throw Exception('Login failed: $e');
     }
   }
 
   Future<Map<String, dynamic>> updateUser(
-      String email, String firstName, String lasName) async {
+      String email, String firstName, String lasName, String phone) async {
     try {
       final response = await http.put(
         Uri.parse('$baseUrl/accounts/user/'),
@@ -111,6 +125,7 @@ class AuthService {
           'first_name': firstName,
           'last_name': lasName,
           'email': email,
+          'phone': phone
         }),
       );
 
@@ -138,8 +153,13 @@ class AuthService {
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
+      print(json.encode({
+        'access_token': googleAuth.accessToken,
+        'id_token': googleAuth.idToken,
+      }));
+
       final response = await http.post(
-        Uri.parse('$baseUrl/accounts/google'),
+        Uri.parse('$baseUrl/accounts/google/'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'access_token': googleAuth.accessToken,
