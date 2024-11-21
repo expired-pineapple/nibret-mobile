@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nibret/provider/auth_provider.dart';
 import 'package:nibret/screens/auction_page.dart';
 import 'package:nibret/screens/home_page.dart';
 import 'package:nibret/screens/login_screen.dart';
 import 'package:nibret/screens/profile_screen.dart';
+import 'package:nibret/screens/wishlist_page.dart';
 import 'package:provider/provider.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -21,7 +22,66 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+
     pages = [
+      const HomePage(),
+      const WishlistPage(),
+      const AuctionPage(),
+      const ProfileScreen(),
+    ];
+  }
+
+  void _onTabTapped(BuildContext context, int index) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    if (index == 3 && !authProvider.isAuthenticated) {
+      // Profile tab index
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+      return; // Exit the function to prevent setting the selected index
+    }
+
+    setState(() {
+      selectedIndex = index;
+    });
+  }
+
+  List<PersistentBottomNavBarItem> _navBarItems() {
+    return [
+      PersistentBottomNavBarItem(
+        icon: Icon(Icons.search),
+        title: "Explore",
+        activeColorPrimary: Colors.blue,
+        inactiveColorPrimary: Colors.grey,
+      ),
+      PersistentBottomNavBarItem(
+        icon: Icon(Icons.favorite_outline),
+        title: ("Wishlist"),
+        activeColorPrimary: Colors.blue,
+        inactiveColorPrimary: Colors.grey,
+      ),
+      PersistentBottomNavBarItem(
+        icon: Icon(Icons.warehouse_outlined),
+        title: ("Auctions"),
+        activeColorPrimary: Colors.blue,
+        inactiveColorPrimary: Colors.grey,
+      ),
+      PersistentBottomNavBarItem(
+        icon: Icon(Icons.account_circle_outlined),
+        title: ("Profile"),
+        activeColorPrimary: Colors.blue,
+        inactiveColorPrimary: Colors.grey,
+      ),
+    ];
+  }
+
+  PersistentTabController _controller =
+      PersistentTabController(initialIndex: 0);
+
+  List<Widget> _screens() {
+    return [
       const HomePage(),
       const Center(child: Text('Wishlists')),
       const AuctionPage(),
@@ -29,61 +89,19 @@ class _MainScreenState extends State<MainScreen> {
     ];
   }
 
-  void _onTabTapped(BuildContext context, int index) {
-    if (index == 3) {
-      // Profile tab index
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      if (!authProvider.isAuthenticated) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
-        );
-        return; // Exit the function to prevent setting the selected index
-      }
-    }
-    setState(() {
-      selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      bottomNavigationBar: Consumer<AuthProvider>(
-        builder: (context, authProvider, child) {
-          return BottomNavigationBar(
-            currentIndex: selectedIndex,
-            elevation: 5,
-            iconSize: 32,
-            onTap: (index) => _onTabTapped(context, index),
-            type: BottomNavigationBarType.fixed,
-            selectedItemColor: const Color(0xFF0A3B81),
-            unselectedItemColor: Colors.grey[400],
-            items: [
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.search),
-                label: "Explore",
-              ),
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.favorite_outline),
-                label: "Wishlists",
-              ),
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.warehouse_outlined),
-                label: "Auctions",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(authProvider.isAuthenticated
-                    ? Icons.account_circle
-                    : Icons.account_circle_outlined),
-                label: "Profile",
-              ),
-            ],
-          );
-        },
-      ),
       body: pages[selectedIndex],
+      bottomNavigationBar: PersistentTabView(
+        context,
+        controller: _controller,
+        screens: _screens(),
+        items: _navBarItems(),
+        backgroundColor: Colors.white,
+        navBarStyle: NavBarStyle.style9,
+      ),
     );
   }
 }

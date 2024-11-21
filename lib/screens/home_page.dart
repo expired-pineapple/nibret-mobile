@@ -168,12 +168,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                   RangeSlider(
                     values: _priceRange,
+                    activeColor: Colors.blue[900],
                     min: 0,
                     max: 1000,
                     divisions: 100,
                     labels: RangeLabels(
                       '\$${_priceRange.start.round()}',
-                      '\$${_priceRange.end.round()}',
+                      '\$${_priceRange.end.round()}k',
                     ),
                     onChanged: (RangeValues values) {
                       setState(() {

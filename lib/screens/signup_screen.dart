@@ -178,12 +178,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 }),
                 const SizedBox(height: 32),
                 ElevatedButton(onPressed: signUp, child: const Text("Sign Up")),
-                const SizedBox(height: 28),
-                const Text("or"),
-                const SizedBox(height: 28),
-                ElevatedButton(
-                    onPressed: signUpWithGoogle,
-                    child: const Text("Continue with Google")),
                 const SizedBox(height: 18),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

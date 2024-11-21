@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nibret/provider/auth_provider.dart';
 import 'package:nibret/screens/home_page.dart';
+import 'package:nibret/screens/layout_screen.dart';
 import 'package:nibret/screens/signup_screen.dart';
 import 'package:nibret/widgets/custom_elevated_button.dart';
 import 'package:nibret/widgets/custom_text_form_field.dart';
@@ -40,7 +41,11 @@ class _LoginScreenState extends State<LoginScreen> {
             textColor: Colors.white,
             fontSize: 16.0);
 
-        Navigator.pop(context);
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+          (route) => true,
+        );
       } catch (e) {
         Fluttertoast.showToast(
             msg: e.toString(),
@@ -94,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   children: [
                     const SizedBox(
-                      height: 44,
+                      height: 100,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
