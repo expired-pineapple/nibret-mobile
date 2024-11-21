@@ -24,7 +24,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     pages = [
       const HomePage(),
-      const WishlistPage(),
+      WishlistPage(),
       const AuctionPage(),
       const ProfileScreen(),
     ];
