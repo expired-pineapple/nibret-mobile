@@ -153,26 +153,23 @@ class _ProfileScreenState extends State<ProfileScreen>
         body: Center(child: CircularProgressIndicator()),
       );
     }
-
-    if (_user == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Profile Settings'),
-          actions: [
-            IconButton(
-                onPressed: _logout, icon: const Icon(Icons.logout_rounded)),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: const Row(
+          children: [
+            BackButton(),
+            Text('Profile Settings'),
           ],
         ),
-        body: const Center(child: Text('User not found')),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile Settings'),
+        toolbarHeight: 80,
         actions: [
           IconButton(
-              onPressed: _logout, icon: const Icon(Icons.logout_rounded)),
+            onPressed: _logout,
+            icon: const Icon(Icons.logout_rounded),
+            color: Colors.red,
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -207,24 +204,18 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ],
                 ),
               ),
-              const Column(
-                children: [
-                  Text(
-                    'Personal Information',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    'You can change  your personal information settings here.',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-                  ),
-                ],
-              ),
               const SizedBox(height: 30),
               Card(
-                  margin: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                    side: const BorderSide(
+                      color: Color.fromARGB(255, 204, 205, 206),
+                      width: 1.0,
+                    ),
+                  ),
+                  color: Colors.white,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(24.0),
                     child: Column(children: [
                       _buildTextField(_firstNameController, 'First Name',
                           Icons.person_outline),

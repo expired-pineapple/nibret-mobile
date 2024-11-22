@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:nibret/provider/auth_provider.dart';
 import 'package:nibret/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:toastification/toastification.dart';
 
 void main() {
-  runApp(
-    MultiProvider(
+  runApp(ToastificationWrapper(
+    child: MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: const MyApp(),
     ),
-  );
+  ));
 }
 
 class MyApp extends StatelessWidget {

@@ -9,21 +9,34 @@ import 'package:provider/provider.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final int initialIndex;
+
+  const MainScreen({
+    super.key,
+    this.initialIndex = 0,
+  });
 
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int selectedIndex = 0;
-  late final List<Widget> pages;
+  late PersistentTabController _controller;
 
   @override
   void initState() {
     super.initState();
+    _controller = PersistentTabController(initialIndex: widget.initialIndex);
+  }
 
-    pages = [
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  List<Widget> _buildScreens() {
+    return [
       const HomePage(),
       const WishlistPage(),
       const AuctionPage(),
@@ -31,61 +44,32 @@ class _MainScreenState extends State<MainScreen> {
     ];
   }
 
-  void _onTabTapped(BuildContext context, int index) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-    if (index == 3 && !authProvider.isAuthenticated) {
-      // Profile tab index
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
-      return; // Exit the function to prevent setting the selected index
-    }
-
-    setState(() {
-      selectedIndex = index;
-    });
-  }
-
   List<PersistentBottomNavBarItem> _navBarItems() {
     return [
       PersistentBottomNavBarItem(
-        icon: Icon(Icons.search),
+        icon: const Icon(Icons.search),
         title: "Explore",
-        activeColorPrimary: Colors.blue,
+        activeColorPrimary: const Color(0XFF163C9F),
         inactiveColorPrimary: Colors.grey,
       ),
       PersistentBottomNavBarItem(
-        icon: Icon(Icons.favorite_outline),
-        title: ("Wishlist"),
-        activeColorPrimary: Colors.blue,
+        icon: const Icon(Icons.favorite_outline),
+        title: "Wishlist",
+        activeColorPrimary: const Color(0XFF163C9F),
         inactiveColorPrimary: Colors.grey,
       ),
       PersistentBottomNavBarItem(
-        icon: Icon(Icons.warehouse_outlined),
-        title: ("Auctions"),
-        activeColorPrimary: Colors.blue,
+        icon: const Icon(Icons.warehouse_outlined),
+        title: "Auctions",
+        activeColorPrimary: const Color(0XFF163C9F),
         inactiveColorPrimary: Colors.grey,
       ),
       PersistentBottomNavBarItem(
-        icon: Icon(Icons.account_circle_outlined),
-        title: ("Profile"),
-        activeColorPrimary: Colors.blue,
+        icon: const Icon(Icons.account_circle_outlined),
+        title: "Profile",
+        activeColorPrimary: const Color(0XFF163C9F),
         inactiveColorPrimary: Colors.grey,
       ),
-    ];
-  }
-
-  PersistentTabController _controller =
-      PersistentTabController(initialIndex: 0);
-
-  List<Widget> _screens() {
-    return [
-      const HomePage(),
-      const Center(child: Text('Wishlists')),
-      const AuctionPage(),
-      const ProfileScreen(),
     ];
   }
 
@@ -93,14 +77,36 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: pages[selectedIndex],
-      bottomNavigationBar: PersistentTabView(
+      body: PersistentTabView(
         context,
         controller: _controller,
-        screens: _screens(),
+        screens: _buildScreens(),
         items: _navBarItems(),
         backgroundColor: Colors.white,
         navBarStyle: NavBarStyle.style9,
+        onItemSelected: (index) {
+          final authProvider =
+              Provider.of<AuthProvider>(context, listen: false);
+
+          if (index == 3 && !authProvider.isAuthenticated) {
+            // Navigate to login screen while preserving the desired tab index
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LoginScreen(),
+              ),
+            ).then((value) {
+              // After login, if successful, the user will be redirected back here
+              // The controller will maintain the selected index
+              if (authProvider.isAuthenticated) {
+                _controller.index = 3; // Set to profile tab
+              } else {
+                _controller.index =
+                    0; // Reset to home tab if login was cancelled
+              }
+            });
+          }
+        },
       ),
     );
   }

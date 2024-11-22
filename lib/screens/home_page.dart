@@ -138,108 +138,489 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           builder: (context, setState) {
             return Container(
               padding: const EdgeInsets.all(20),
-              height: MediaQuery.of(context).size.height * 0.7,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const Text(
-                        'Filters',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+              height:
+                  MediaQuery.of(context).size.height * 0.9, // Increased height
+              child: SingleChildScrollView(
+                // Added ScrollView to handle overflow
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
                         ),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Price Range',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                        const Text(
+                          'Filters',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      ],
                     ),
-                  ),
-                  RangeSlider(
-                    values: _priceRange,
-                    activeColor: Colors.blue[900],
-                    min: 0,
-                    max: 1000,
-                    divisions: 100,
-                    labels: RangeLabels(
-                      '\$${_priceRange.start.round()}',
-                      '\$${_priceRange.end.round()}k',
-                    ),
-                    onChanged: (RangeValues values) {
-                      setState(() {
-                        _priceRange = values;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Property Type',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Column(),
-                  CheckboxListTile(
-                    title: const Text('Entire Place'),
-                    value: _entirePlace,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        _entirePlace = value!;
-                      });
-                    },
-                  ),
-                  CheckboxListTile(
-                    title: const Text('Private Room'),
-                    value: _privateRoom,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        _privateRoom = value!;
-                      });
-                    },
-                  ),
-                  CheckboxListTile(
-                    title: const Text('Shared Room'),
-                    value: _sharedRoom,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        _sharedRoom = value!;
-                      });
-                    },
-                  ),
-                  const Spacer(),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0A3B81),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Price Range',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
-                      onPressed: () {
-                        // Apply filters logic here
-                        Navigator.pop(context);
+                    ),
+                    RangeSlider(
+                      values: _priceRange,
+                      activeColor: Colors.blue[900],
+                      min: 0,
+                      max: 1000,
+                      divisions: 100,
+                      labels: RangeLabels(
+                        '\$${_priceRange.start.round()}',
+                        '\$${_priceRange.end.round()}k',
+                      ),
+                      onChanged: (RangeValues values) {
+                        setState(() {
+                          _priceRange = values;
+                        });
                       },
-                      child: const Text(
-                        'Apply Filters',
-                        style: TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Bedroom',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 20),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              print("pressed");
+                            },
+                            child: const Text(
+                              "Any",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          ElevatedButton(
+                            onPressed: () {
+                              print("pressed");
+                            },
+                            child: const Text(
+                              "1",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          ElevatedButton(
+                            onPressed: () {
+                              print("pressed");
+                            },
+                            child: const Text("2",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                          const SizedBox(width: 4),
+                          ElevatedButton(
+                            onPressed: () {
+                              print("pressed");
+                            },
+                            child: const Text("3",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                          const SizedBox(width: 4),
+                          ElevatedButton(
+                            onPressed: () {
+                              print("pressed");
+                            },
+                            child: const Text("4",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Bathroom',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              print("pressed");
+                            },
+                            child: const Text("Any",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                          const SizedBox(width: 4),
+                          ElevatedButton(
+                            onPressed: () {
+                              print("pressed");
+                            },
+                            child: const Text("1",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                          const SizedBox(width: 4),
+                          ElevatedButton(
+                            onPressed: () {
+                              print("pressed");
+                            },
+                            child: const Text("2",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                          const SizedBox(width: 4),
+                          ElevatedButton(
+                            onPressed: () {
+                              print("pressed");
+                            },
+                            child: const Text("3",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                          const SizedBox(width: 4),
+                          ElevatedButton(
+                            onPressed: () {
+                              print("pressed");
+                            },
+                            child: const Text("4",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Property Type',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  side: const BorderSide(
+                                    color: Color.fromARGB(255, 153, 152, 152),
+                                    width: 2.0,
+                                  ),
+                                ),
+                                elevation: 0,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(18.0),
+                                  child: Column(
+                                    children: [
+                                      Icon(Icons.apartment_outlined),
+                                      SizedBox(height: 10),
+                                      Text("Luxury Apartments",
+                                          textAlign: TextAlign.left,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ))
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  side: const BorderSide(
+                                    color: Color.fromARGB(255, 153, 152, 152),
+                                    width: 2.0,
+                                  ),
+                                ),
+                                elevation: 0,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(18.0),
+                                  child: Column(
+                                    children: [
+                                      Icon(Icons.villa_outlined),
+                                      SizedBox(height: 10),
+                                      Text('Villa',
+                                          textAlign: TextAlign.left,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ))
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  side: const BorderSide(
+                                    color: Color.fromARGB(255, 153, 152, 152),
+                                    width: 2.0,
+                                  ),
+                                ),
+                                elevation: 0,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(18.0),
+                                  child: Column(
+                                    children: [
+                                      Icon(Icons.cottage_outlined),
+                                      SizedBox(height: 10),
+                                      Text('Rentals',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ))
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  side: const BorderSide(
+                                    color: Color.fromARGB(255, 153, 152, 152),
+                                    width: 2.0,
+                                  ),
+                                ),
+                                elevation: 0,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(18.0),
+                                  child: Column(
+                                    children: [
+                                      Icon(Icons.work_outline),
+                                      SizedBox(height: 10),
+                                      Text('Office Space',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ))
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  side: const BorderSide(
+                                    color: Color.fromARGB(255, 153, 152, 152),
+                                    width: 2.0,
+                                  ),
+                                ),
+                                elevation: 0,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(18.0),
+                                  child: Column(
+                                    children: [
+                                      Icon(Icons.near_me_sharp),
+                                      SizedBox(height: 10),
+                                      Text("Plot Land",
+                                          textAlign: TextAlign.left,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ))
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  side: const BorderSide(
+                                    color: Color.fromARGB(255, 153, 152, 152),
+                                    width: 2.0,
+                                  ),
+                                ),
+                                elevation: 0,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(18.0),
+                                  child: Column(
+                                    children: [
+                                      Icon(Icons.villa_outlined),
+                                      SizedBox(height: 10),
+                                      Text('Villa',
+                                          textAlign: TextAlign.left,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ))
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  side: const BorderSide(
+                                    color: Color.fromARGB(255, 153, 152, 152),
+                                    width: 2.0,
+                                  ),
+                                ),
+                                elevation: 0,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(18.0),
+                                  child: Column(
+                                    children: [
+                                      Icon(Icons.cottage_outlined),
+                                      SizedBox(height: 10),
+                                      Text('Rentals',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ))
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  side: const BorderSide(
+                                    color: Color.fromARGB(255, 153, 152, 152),
+                                    width: 2.0,
+                                  ),
+                                ),
+                                elevation: 0,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(18.0),
+                                  child: Column(
+                                    children: [
+                                      Icon(Icons.work_outline),
+                                      SizedBox(height: 10),
+                                      Text('Office Space',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ))
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0A3B81),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text(
+                          'Apply Filters',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             );
           },
@@ -253,10 +634,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            "Please connect to network",
+          Text(
+            _error ?? "Please connect to the internet",
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(

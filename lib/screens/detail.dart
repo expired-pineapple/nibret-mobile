@@ -6,6 +6,7 @@ import 'package:nibret/models/property.dart';
 import 'package:nibret/screens/request_tour.dart';
 import 'package:nibret/services/property_api.dart';
 import 'package:nibret/widgets/expandable_text.dart';
+import 'package:nibret/widgets/loaners_card.dart';
 
 class PropertyDetails extends StatefulWidget {
   final String propertyId;
@@ -359,7 +360,33 @@ class _PropertyDetailsState extends State<PropertyDetails>
                       ),
                     ),
                   ),
-                  SizedBox(height: MediaQuery.of(context).padding.bottom + 24),
+                  const Text(
+                    "Available Loaners",
+                    style: TextStyle(
+                      color: Color(0xFF252525),
+                      fontSize: 24,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(
+                    height: _property!.loaners.isEmpty
+                        ? 0
+                        : 400, // Adjust height as needed
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: const ClampingScrollPhysics(),
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _property!.loaners.length,
+                      itemBuilder: (context, index) {
+                        final property = _property!.loaners[index];
+                        return LoanerCard(
+                          loaner: property,
+                        );
+                      },
+                    ),
+                  ),
+                  SizedBox(height: MediaQuery.of(context).padding.bottom + 24)
                 ],
               ),
             ),

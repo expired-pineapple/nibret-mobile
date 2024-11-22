@@ -63,101 +63,61 @@ class _AuctionCardState extends State<AuctionCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: CarouselSlider.builder(
-                  itemCount: widget.auction.pictures.length,
-                  options: CarouselOptions(
-                    height: 323,
-                    viewportFraction: 1.0,
-                    enableInfiniteScroll: false,
-                    onPageChanged: (index, reason) {
-                      setState(() {
-                        _currentImageIndex = index;
-                      });
-                    },
-                  ),
-                  itemBuilder: (context, index, realIndex) {
-                    final picture = widget.auction.pictures[index];
-                    return SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          BlurHash(
-                            hash: picture.blurHash,
-                            imageFit: BoxFit.cover,
-                          ),
-                          Image.network(
-                            picture.imageUrl,
-                            fit: BoxFit.cover,
-                            frameBuilder: (context, child, frame,
-                                wasSynchronouslyLoaded) {
-                              if (wasSynchronouslyLoaded) return child;
-                              return AnimatedOpacity(
-                                opacity: frame == null ? 0 : 1,
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeOut,
-                                child: child,
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: Colors.white,
-                                child: const Center(
-                                  child: Icon(Icons.error_outline, size: 50),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    );
+          Stack(children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: CarouselSlider.builder(
+                itemCount: widget.auction.pictures.length,
+                options: CarouselOptions(
+                  height: 323,
+                  viewportFraction: 1.0,
+                  enableInfiniteScroll: false,
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      _currentImageIndex = index;
+                    });
                   },
                 ),
+                itemBuilder: (context, index, realIndex) {
+                  final picture = widget.auction.pictures[index];
+                  return SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        BlurHash(
+                          hash: picture.blurHash,
+                          imageFit: BoxFit.cover,
+                        ),
+                        Image.network(
+                          picture.imageUrl,
+                          fit: BoxFit.cover,
+                          frameBuilder:
+                              (context, child, frame, wasSynchronouslyLoaded) {
+                            if (wasSynchronouslyLoaded) return child;
+                            return AnimatedOpacity(
+                              opacity: frame == null ? 0 : 1,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOut,
+                              child: child,
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.white,
+                              child: const Center(
+                                child: Icon(Icons.error_outline, size: 50),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
-              // Indicators
-              Positioned(
-                bottom: 16,
-                left: 0,
-                right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children:
-                      widget.auction.pictures.asMap().entries.map((entry) {
-                    return Container(
-                      width: 8,
-                      height: 8,
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _currentImageIndex == entry.key
-                            ? Colors.white
-                            : Colors.white.withOpacity(0.4),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-              // Wishlist button
-              Positioned(
-                top: 10,
-                right: 10,
-                child: IconButton(
-                  icon: Icon(
-                    widget.auction.isWishListed
-                        ? Icons.favorite
-                        : Icons.favorite_border,
-                    color:
-                        widget.auction.isWishListed ? Colors.red : Colors.white,
-                  ),
-                  onPressed: () {},
-                ),
-              ),
-            ],
-          ),
+            ),
+          ]),
           Padding(
               padding: const EdgeInsets.all(16),
               child: InkWell(
