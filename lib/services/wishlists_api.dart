@@ -1,4 +1,3 @@
-// services/api_service.dart
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -48,24 +47,20 @@ class ApiService {
     }
   }
 
-  Future<void> toggleWishlist(String propertyId, bool isWishlisted) async {
+  Future<void> toggleWishlist({
+    required String itemId,
+    required bool isWishlisted,
+    required bool isProperty, 
+  }) async {
     try {
-      final authService = AuthService();
-      final token = await authService.getToken();
-      var headers = {
-        'Content-Type': 'application/json',
-      };
-      if (token != null) {
-        headers['Authorization'] = 'Bearer $token';
-      }
-
-      final response = await _client
-          .post(
-            Uri.parse('$baseUrl/properties/$propertyId/wishlist'),
-            headers: headers,
-            body: json.encode({'is_wishlisted': isWishlisted}),
-          )
-          .timeout(timeoutDuration);
+      final response = await _client.post(
+        Uri.parse('$baseUrl/wishlist/add_items/'),
+        body: {
+          'item_id': itemId,
+          'is_wishlisted': isWishlisted.toString(),
+          'is_property': isProperty.toString(),
+        },
+      ).timeout(timeoutDuration)
 
       if (response.statusCode != 200) {
         throw HttpException(
