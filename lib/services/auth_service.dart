@@ -30,8 +30,13 @@ class AuthService {
 
   // User data management
   Future<void> saveUserData(Map<String, dynamic> userData) async {
-    print("here");
-    await _storage.write(key: _userKey, value: json.encode(userData));
+    print("saveUserData");
+    print(userData);
+    try {
+      await _storage.write(key: _userKey, value: json.encode(userData));
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<Map<String, dynamic>?> getUserData() async {
@@ -49,7 +54,9 @@ class AuthService {
   Future<User> getUser() async {
     try {
       // Get the token from secure storage
+      print("HERE");
       final token = await getToken();
+      print(token);
 
       if (token == null) {
         throw const HttpException('No authentication token found');
@@ -115,15 +122,31 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> updateUser(
-      String email, String firstName, String lasName, String phone) async {
+  Future<User> updateUser(
+      String firstName, String lastName, String email, String phone) async {
     try {
+      final token = await getToken();
+
+      if (token == null) {
+        throw const HttpException('No authentication token found');
+      }
+
+      print(json.encode({
+        'first_name': firstName,
+        'last_name': lastName,
+        'email': email,
+        'phone': phone
+      }));
+
       final response = await http.put(
         Uri.parse('$baseUrl/accounts/user/'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
         body: json.encode({
           'first_name': firstName,
-          'last_name': lasName,
+          'last_name': lastName,
           'email': email,
           'phone': phone
         }),
@@ -134,25 +157,39 @@ class AuthService {
 
         await saveUserData(responseData);
 
-        return responseData;
+        final user = User.fromJson(responseData);
+        return user;
       } else {
+        print("_____________");
+        print(response.body);
         throw Exception('Failed to update user: ${response.body}');
       }
     } catch (e) {
+      print(e);
       throw Exception('Update failed: $e');
     }
   }
 
   Future<Map<String, dynamic>> loginWithGoogle() async {
     try {
-      final GoogleSignIn googleSignIn = GoogleSignIn();
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        serverClientId:
+            '1053937283361-oj94453evot45fidpcugr7nqssdc49v7.apps.googleusercontent.com',
+        clientId:
+            '1053937283361-oj94453evot45fidpcugr7nqssdc49v7.apps.googleusercontent.com',
+        hostedDomain: '',
+        scopes: ['email'],
+      );
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+      print("Google user here____________________________________");
 
       if (googleUser == null) throw Exception('Google sign in cancelled');
 
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
-
+      print("Google here______________________________________");
+      print(googleAuth);
       print(json.encode({
         'access_token': googleAuth.accessToken,
         'id_token': googleAuth.idToken,
@@ -176,9 +213,13 @@ class AuthService {
 
         return responseData;
       } else {
+        print("Ezi_________________________________________________________");
+        print(response.body);
         throw Exception('Failed to login with Google: ${response.body}');
       }
     } catch (e) {
+      print("_______________________________");
+      print('Google login failed: $e');
       throw Exception('Google login failed: $e');
     }
   }

@@ -94,9 +94,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final updatedUserData =
-          await _authService.updateUser(email, firstName, lastName, phone);
-      _user = User.fromJson(updatedUserData);
+      await _authService.updateUser(email, firstName, lastName, phone);
     } finally {
       _isLoading = false;
       notifyListeners();

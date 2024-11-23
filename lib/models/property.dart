@@ -1,5 +1,68 @@
 import 'package:flutter/material.dart';
 
+class Loaner {
+  final String id;
+  final String name;
+  final bool realStateProvided;
+  final String? logo;
+  final String? phone;
+
+  Loaner({
+    required this.id,
+    required this.name,
+    required this.realStateProvided,
+    this.logo,
+    this.phone,
+  });
+
+  factory Loaner.fromJson(Map<String, dynamic> json) {
+    return Loaner(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      realStateProvided: json['real_state_provided'] as bool,
+      logo: json['logo'] as String?,
+      phone: json['phone'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'real_state_provided': realStateProvided,
+      'logo': logo,
+      'phone': phone,
+    };
+  }
+}
+
+class LoanerResponse {
+  final String id;
+  final Loaner loaner;
+  final String description;
+
+  LoanerResponse({
+    required this.id,
+    required this.loaner,
+    required this.description,
+  });
+
+  factory LoanerResponse.fromJson(Map<String, dynamic> json) {
+    return LoanerResponse(
+      id: json['id'] as String,
+      loaner: Loaner.fromJson(json['loaner'] as Map<String, dynamic>),
+      description: json['description'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'loaner': loaner.toJson(),
+    };
+  }
+}
+
 class Location {
   final String id;
   final String name;
@@ -124,6 +187,7 @@ class Property {
   final String type;
   final DateTime moveInDate;
   final bool isAuction;
+  final List<LoanerResponse> loaners;
   final DateTime createdAt;
   final DateTime updatedAt;
   final int createdBy;
@@ -145,6 +209,7 @@ class Property {
       required this.isAuction,
       required this.createdAt,
       required this.updatedAt,
+      required this.loaners,
       required this.createdBy,
       this.isWishListed = false});
 
@@ -164,6 +229,9 @@ class Property {
       soldOut: json['sold_out'],
       isStore: json['is_store'],
       type: json['type'],
+      loaners: (json['loaner_detail'] as List<dynamic>)
+          .map((loaners) => LoanerResponse.fromJson(loaners))
+          .toList(),
       moveInDate: DateTime.parse(json['move_in_date']),
       isAuction: json['is_auction'],
       createdAt: DateTime.parse(json['created_at']),

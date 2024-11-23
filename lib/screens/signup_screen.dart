@@ -172,18 +172,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     "Confirm Password",
                     "Please confirm your password",
                     TextInputType.visiblePassword, (value) {
-                  if (value != passwordController.text)
+                  if (value != passwordController.text) {
                     return 'Passwords do not match';
+                  }
                   return null;
                 }),
                 const SizedBox(height: 32),
-                ElevatedButton(onPressed: signUp, child: const Text("Sign Up")),
-                const SizedBox(height: 28),
-                const Text("or"),
-                const SizedBox(height: 28),
+                // Login button
                 ElevatedButton(
-                    onPressed: signUpWithGoogle,
-                    child: const Text("Continue with Google")),
+                  onPressed: signUp,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0XFF163C9F),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Sign up',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 const SizedBox(height: 18),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
