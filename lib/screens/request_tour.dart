@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:nibret/models/auction.dart';
-import 'package:nibret/services/auction_api.dart';
 import 'package:intl/intl.dart';
+import 'package:nibret/screens/login_screen.dart';
+import 'package:nibret/services/auth_service.dart';
+import 'package:nibret/services/tour_service.dart';
 
 class RequestTour extends StatefulWidget {
-  final String auctionId;
+  final String propertyId;
   final bool property;
 
   const RequestTour(
-      {super.key, required this.auctionId, this.property = false});
+      {super.key, required this.propertyId, this.property = false});
 
   @override
   State<RequestTour> createState() => _RequestTourState();
@@ -16,10 +17,9 @@ class RequestTour extends StatefulWidget {
 
 class _RequestTourState extends State<RequestTour> {
   final _formKey = GlobalKey<FormState>();
-  final ApiService _apiService = ApiService();
-  late final Auction _auction;
-  bool _isLoading = true;
-  String? _error;
+  final TourApiService _tourApiService = TourApiService();
+  final AuthService _authService = AuthService();
+  bool _isSubmitting = false;
 
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
@@ -27,6 +27,26 @@ class _RequestTourState extends State<RequestTour> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAuthentication();
+    });
+  }
+
+  Future<void> _checkAuthentication() async {
+    bool isLoggedIn = await _authService.isLoggedIn();
+    print(isLoggedIn);
+    if (!isLoggedIn && mounted) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => LoginScreen(),
+          ));
+    }
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -39,6 +59,8 @@ class _RequestTourState extends State<RequestTour> {
       setState(() {
         _selectedDate = picked;
       });
+      // After selecting date, show time picker
+      _selectTime(context);
     }
   }
 
@@ -54,16 +76,52 @@ class _RequestTourState extends State<RequestTour> {
     }
   }
 
-  void _submitTourRequest() {
-    if (_formKey.currentState!.validate()) {
-      // TODO: Implement tour request submission
-      print('Tour request submitted');
-      print('Date: $_selectedDate');
-      print('Time: $_selectedTime');
-      print('Communication Preference: $_communicationPreference');
-      print('Phone: ${_phoneController.text}');
-      print('Email: ${_emailController.text}');
-      print('Notes: ${_notesController.text}');
+  Future<void> _submitTourRequest() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (_selectedDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a date and time')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      final DateTime tourDateTime = DateTime(
+        _selectedDate!.year,
+        _selectedDate!.month,
+        _selectedDate!.day,
+        _selectedTime?.hour ?? 12,
+        _selectedTime?.minute ?? 0,
+      );
+
+      await _tourApiService.requestTour(
+        propertyId: widget.propertyId,
+        tourDate: tourDateTime,
+        notes: _notesController.text,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Tour request submitted successfully')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not submit request')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
     }
   }
 
@@ -93,7 +151,7 @@ class _RequestTourState extends State<RequestTour> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Select Preferred Date and Time',
+                        'Select Preferred Date & Time',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -104,9 +162,8 @@ class _RequestTourState extends State<RequestTour> {
                         leading: const Icon(Icons.calendar_today),
                         title: Text(
                           _selectedDate == null
-                              ? 'Select Date'
-                              : DateFormat('MMM dd, yyyy')
-                                  .format(_selectedDate!),
+                              ? 'Select Date and Time'
+                              : '${DateFormat('MMM dd, yyyy').format(_selectedDate!)} ${_selectedTime?.format(context) ?? ''}',
                         ),
                         onTap: () => _selectDate(context),
                       )
@@ -165,14 +222,32 @@ class _RequestTourState extends State<RequestTour> {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: _submitTourRequest,
+                onPressed: _isSubmitting ? null : _submitTourRequest,
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: const Color(0XFF163C9F),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text('Submit Tour Request'),
+                child: _isSubmitting
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Submit Tour Request',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
             ],
           ),

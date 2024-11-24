@@ -70,10 +70,6 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   void _handleError(dynamic error) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error: ${error.toString()}')),
-    );
-
     if (error.toString().contains('Unauthorized')) {
       _authService.deleteToken();
       Navigator.of(context).pushReplacementNamed('/login');
@@ -183,7 +179,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 child: CircleAvatar(
                   backgroundColor: Color.fromARGB(17, 10, 60, 129),
                   radius: 50,
-                  child: Icon(Icons.person, size: 50, color: Color(0xFF0A3B81)),
+                  child: Icon(Icons.person, size: 50, color: Color(0xFF0668FE)),
                 ),
               ),
               const SizedBox(height: 10),
@@ -237,7 +233,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(50),
-                    backgroundColor: const Color(0xFF0A3B81),
+                    backgroundColor: const Color(0xFF0668FE),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),

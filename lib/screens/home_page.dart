@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nibret/widgets/MapWithCustomInfo.dart';
+import 'package:nibret/widgets/property_skeleton.dart';
 import '../services/property_api.dart';
 import '../models/property.dart';
 import '../widgets/property_card.dart';
@@ -20,34 +21,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   String? _error;
   List<bool> wishlist = List.generate(10, (index) => false);
   RangeValues _priceRange = const RangeValues(0, 1000);
-  bool _entirePlace = false;
-  bool _privateRoom = false;
-  bool _sharedRoom = false;
-  Position? _currentPosition;
 
   late TabController _tabController;
   final List<String> _categories = [
     "All",
     "Luxury Apartments",
     "Villa",
-    "Rentals",
-    'Plot Land',
-    'Single Family',
-    'Apartment',
-    'Penthouse',
-    'Townhouse',
-    'Villa',
-    'Commercial',
-    'Condominium',
-    'Office Space',
-    'Warehouse',
+    "Plot Land",
+    "Single Family",
+    "Apartment",
+    "Penthouse",
+    "Townhouse",
+    "Commercial",
+    "Condominium",
+    "Office Space",
+    "Warehouse",
   ];
 
   @override
   void initState() {
     super.initState();
     _initializeData();
-    _tabController = TabController(length: 14, vsync: this);
+    _tabController = TabController(length: _categories.length, vsync: this);
   }
 
   @override
@@ -171,11 +166,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     RangeSlider(
                       values: _priceRange,
                       activeColor: Colors.blue[900],
-                      min: 0,
+                      min: 5,
                       max: 1000,
                       divisions: 100,
                       labels: RangeLabels(
-                        '\$${_priceRange.start.round()}',
+                        '\$${_priceRange.start.round()}k',
                         '\$${_priceRange.end.round()}k',
                       ),
                       onChanged: (RangeValues values) {
@@ -409,67 +404,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Expanded(
-                              child: Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  side: const BorderSide(
-                                    color: Color.fromARGB(255, 153, 152, 152),
-                                    width: 2.0,
-                                  ),
-                                ),
-                                elevation: 0,
-                                child: const Padding(
-                                  padding: EdgeInsets.all(18.0),
-                                  child: Column(
-                                    children: [
-                                      Icon(Icons.cottage_outlined),
-                                      SizedBox(height: 10),
-                                      Text('Rentals',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ))
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  side: const BorderSide(
-                                    color: Color.fromARGB(255, 153, 152, 152),
-                                    width: 2.0,
-                                  ),
-                                ),
-                                elevation: 0,
-                                child: const Padding(
-                                  padding: EdgeInsets.all(18.0),
-                                  child: Column(
-                                    children: [
-                                      Icon(Icons.work_outline),
-                                      SizedBox(height: 10),
-                                      Text('Office Space',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ))
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -535,67 +469,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Expanded(
-                              child: Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  side: const BorderSide(
-                                    color: Color.fromARGB(255, 153, 152, 152),
-                                    width: 2.0,
-                                  ),
-                                ),
-                                elevation: 0,
-                                child: const Padding(
-                                  padding: EdgeInsets.all(18.0),
-                                  child: Column(
-                                    children: [
-                                      Icon(Icons.cottage_outlined),
-                                      SizedBox(height: 10),
-                                      Text('Rentals',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ))
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  side: const BorderSide(
-                                    color: Color.fromARGB(255, 153, 152, 152),
-                                    width: 2.0,
-                                  ),
-                                ),
-                                elevation: 0,
-                                child: const Padding(
-                                  padding: EdgeInsets.all(18.0),
-                                  child: Column(
-                                    children: [
-                                      Icon(Icons.work_outline),
-                                      SizedBox(height: 10),
-                                      Text('Office Space',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ))
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -603,7 +476,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0A3B81),
+                          backgroundColor: const Color(0xFF0668FE),
                           padding: const EdgeInsets.symmetric(vertical: 15),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -648,7 +521,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               selectionColor: Colors.white,
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0A3B81),
+              backgroundColor: const Color(0xFF0668FE),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
           ),
@@ -660,46 +533,51 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A3B81),
+      backgroundColor: const Color(0xFF0668FE),
       body: Column(
         children: [
           Container(
             padding: const EdgeInsets.fromLTRB(16, 60, 18, 20),
-            color: const Color(0xFF0A3B81),
+            color: const Color(0xFF0668FE),
             child: Column(
               children: [
                 Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.33),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search destinations',
-                      hintStyle:
-                          TextStyle(color: Colors.white.withOpacity(0.5)),
-                      prefixIcon: const Icon(
-                        Icons.search,
-                        color: Colors.white,
-                      ),
-                      suffixIcon: IconButton.outlined(
-                        icon: const Icon(
-                          Icons.tune,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.33),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.white),
+                    ),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Search destinations',
+                        hintStyle:
+                            TextStyle(color: Colors.white.withOpacity(0.5)),
+                        prefixIcon: const Icon(
+                          Icons.search,
                           color: Colors.white,
                         ),
-                        color: Colors.white.withOpacity(0.38),
-                        onPressed: _showFilterBottomSheet,
+                        suffixIcon: IconButton.outlined(
+                          icon: const Icon(
+                            Icons.tune,
+                            color: Colors.white,
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side:
+                                BorderSide(color: Colors.white.withOpacity(0)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          onPressed: _showFilterBottomSheet,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 20),
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 20),
-                    ),
-                  ),
-                ),
+                    )),
               ],
             ),
           ),
@@ -716,63 +594,45 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 children: [
                   TabBar(
                     controller: _tabController,
-                    labelColor: const Color(0xFF0A3B81),
+                    labelColor: const Color(0xFF0668FE),
                     indicatorColor: Colors.blue[900],
                     unselectedLabelColor:
                         const Color.fromARGB(255, 118, 121, 126),
                     isScrollable: true,
-                    tabs: const [
-                      Tab(text: "All", icon: Icon(Icons.house_outlined)),
-                      Tab(
-                        text: "Luxury Apartments",
-                        icon: Icon(Icons.apartment),
-                      ),
-                      Tab(
-                        text: "Villa",
-                        icon: Icon(Icons.villa_outlined),
-                      ),
-                      Tab(
-                        text: "Rentals",
-                        icon: Icon(Icons.cottage_outlined),
-                      ),
-                      Tab(
-                          text: "Office Space",
-                          icon: Icon(Icons.house_outlined)),
-                      Tab(
-                        text: "Condominium",
-                        icon: Icon(Icons.apartment),
-                      ),
-                      Tab(
-                        text: "Rentals",
-                        icon: Icon(Icons.cottage_outlined),
-                      ),
-                      Tab(text: "Plot Land", icon: Icon(Icons.house_outlined)),
-                      Tab(
-                        text: "Single Family",
-                        icon: Icon(Icons.apartment),
-                      ),
-                      Tab(
-                        text: "Penthouse",
-                        icon: Icon(Icons.villa_outlined),
-                      ),
-                      Tab(
-                        text: "Townhouse",
-                        icon: Icon(Icons.cottage_outlined),
-                      ),
-                      Tab(text: "Warehouse", icon: Icon(Icons.house_outlined)),
-                      Tab(
-                        text: "Commercial",
-                        icon: Icon(Icons.apartment),
-                      ),
-                      Tab(
-                        text: "Villa",
-                        icon: Icon(Icons.villa_outlined),
-                      )
-                    ],
+                    tabs: _categories.map((category) {
+                      IconData iconData;
+                      switch (category.toLowerCase()) {
+                        case 'Luxury Apartments':
+                        case 'Apartment':
+                        case 'Condominium':
+                          iconData = Icons.apartment;
+                          break;
+                        case 'Villa':
+                        case 'Penthouse':
+                          iconData = Icons.villa_outlined;
+                          break;
+                        case 'Townhouse':
+                          iconData = Icons.cottage_outlined;
+                          break;
+                        default:
+                          iconData = Icons.house_outlined;
+                      }
+
+                      return Tab(
+                        text: category,
+                        icon: Icon(iconData),
+                      );
+                    }).toList(),
                   ),
                   Expanded(
                     child: _isLoading
-                        ? const Center(child: CircularProgressIndicator())
+                        ? ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: 5,
+                            itemBuilder: (context, index) {
+                              return const PropertyCardSkeleton();
+                            },
+                          )
                         : _error != null
                             ? _buildErrorView()
                             : RefreshIndicator(
@@ -780,23 +640,42 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 child: TabBarView(
                                   controller: _tabController,
                                   children: _categories.map((category) {
-                                    return ListView.builder(
-                                      padding: const EdgeInsets.all(16),
-                                      itemCount: _properties.length,
-                                      itemBuilder: (context, index) {
-                                        final property = _properties[index];
-                                        return PropertyCard(
-                                          property: property,
-                                          onWishlistToggle: (isWishlisted) =>
-                                              _handleWishlistToggle(
-                                                  property, isWishlisted),
-                                        );
-                                      },
-                                    );
+                                    // Filter properties based on category
+                                    List<Property> filteredProperties =
+                                        category == "All"
+                                            ? _properties
+                                            : _properties.where((property) {
+                                                return property.type
+                                                        .toLowerCase() ==
+                                                    category.toLowerCase();
+                                              }).toList();
+
+                                    return filteredProperties.isEmpty
+                                        ? const Center(
+                                            child: Text(
+                                                'No properties found in this category'),
+                                          )
+                                        : ListView.builder(
+                                            padding: const EdgeInsets.all(16),
+                                            itemCount:
+                                                filteredProperties.length,
+                                            itemBuilder: (context, index) {
+                                              final property =
+                                                  filteredProperties[index];
+                                              return PropertyCard(
+                                                property: property,
+                                                onWishlistToggle:
+                                                    (isWishlisted) =>
+                                                        _handleWishlistToggle(
+                                                            property,
+                                                            isWishlisted),
+                                              );
+                                            },
+                                          );
                                   }).toList(),
                                 ),
                               ),
-                  ),
+                  )
                 ],
               ),
             ),

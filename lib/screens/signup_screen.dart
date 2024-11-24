@@ -228,8 +228,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       String? Function(String?)? validator]) {
     return TextFormField(
       controller: controller,
-      decoration:
-          InputDecoration(labelText: labelText, border: OutlineInputBorder()),
+      decoration: InputDecoration(
+          labelText: labelText, border: const OutlineInputBorder()),
       keyboardType: inputType,
       validator: (value) {
         if (value!.isEmpty) return validationMessage;

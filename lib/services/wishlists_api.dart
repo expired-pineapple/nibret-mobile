@@ -27,13 +27,11 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final responseBody = json.decode(response.body);
-        print(responseBody[0]);
 
         final wishlist = WishlistItem.fromJson(responseBody[0]);
         return wishlist;
       } else {
-        throw HttpException(
-            'Failed to load properties. Status: ${response.statusCode}');
+        throw const HttpException('Failed to load properties');
       }
     } on SocketException catch (e) {
       throw HttpException(
@@ -50,7 +48,7 @@ class ApiService {
   Future<void> toggleWishlist({
     required String itemId,
     required bool isWishlisted,
-    required bool isProperty, 
+    required bool isProperty,
   }) async {
     try {
       final response = await _client.post(
@@ -60,7 +58,7 @@ class ApiService {
           'is_wishlisted': isWishlisted.toString(),
           'is_property': isProperty.toString(),
         },
-      ).timeout(timeoutDuration)
+      ).timeout(timeoutDuration);
 
       if (response.statusCode != 200) {
         throw HttpException(

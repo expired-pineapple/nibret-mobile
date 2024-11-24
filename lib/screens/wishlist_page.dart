@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:nibret/models/auction.dart';
 import 'package:nibret/models/property.dart';
 import 'package:nibret/provider/auth_provider.dart';
+import 'package:nibret/screens/login_screen.dart';
 import 'package:nibret/screens/signup_screen.dart';
+import 'package:nibret/services/auth_service.dart';
 import 'package:nibret/widgets/auction_card.dart';
 import 'package:nibret/services/wishlists_api.dart';
 import 'package:nibret/widgets/property_card.dart';
@@ -25,6 +27,7 @@ class _WishlistPageState extends State<WishlistPage>
   bool _isLoading = true;
   String? _error;
   List<bool> wishlist = List.generate(10, (index) => false);
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -32,8 +35,20 @@ class _WishlistPageState extends State<WishlistPage>
     _tabController = TabController(length: 2, vsync: this);
     final auth = Provider.of<AuthProvider>(context, listen: false);
     _isAuthenticated = auth.isAuthenticated;
+    _checkAuthentication();
 
     _initializeData();
+  }
+
+  Future<void> _checkAuthentication() async {
+    bool isLoggedIn = await _authService.isLoggedIn();
+    if (!isLoggedIn && mounted) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const LoginScreen(),
+          ));
+    }
   }
 
   @override
@@ -72,16 +87,6 @@ class _WishlistPageState extends State<WishlistPage>
         _error = e.toString();
         _isLoading = false;
       });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          action: SnackBarAction(
-            label: 'Retry',
-            onPressed: _loadProperties,
-          ),
-        ),
-      );
     }
   }
 
@@ -127,7 +132,7 @@ class _WishlistPageState extends State<WishlistPage>
             icon: const Icon(Icons.refresh),
             label: const Text('Retry'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0A3B81),
+              backgroundColor: const Color(0xFF0668FE),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
           ),
@@ -146,7 +151,7 @@ class _WishlistPageState extends State<WishlistPage>
 
     if (!_isAuthenticated) {
       return Scaffold(
-          backgroundColor: const Color(0xFF0A3B81),
+          backgroundColor: const Color(0xFF0668FE),
           body: Center(
             child: Column(
               children: [
@@ -160,7 +165,7 @@ class _WishlistPageState extends State<WishlistPage>
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0A3B81),
+                    backgroundColor: const Color(0xFF0668FE),
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -224,12 +229,12 @@ class _WishlistPageState extends State<WishlistPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A3B81),
+      backgroundColor: const Color(0xFF0668FE),
       body: Column(
         children: [
           Container(
             padding: const EdgeInsets.fromLTRB(16, 60, 18, 20),
-            color: const Color(0xFF0A3B81),
+            color: const Color(0xFF0668FE),
             child: Column(
               children: [
                 Container(

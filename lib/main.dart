@@ -10,7 +10,6 @@ void main() {
     child: MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
       ],
       child: const MyApp(),
@@ -28,7 +27,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         inputDecorationTheme: InputDecorationTheme(
           focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Color(0xFF0A3B81), width: 2.0),
+            borderSide: const BorderSide(color: Color(0xFF0668FE), width: 2.0),
             borderRadius: BorderRadius.circular(10),
           ),
           enabledBorder: OutlineInputBorder(

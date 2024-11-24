@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nibret/models/auction.dart';
 import 'package:nibret/widgets/auction_card.dart';
+import 'package:nibret/widgets/property_skeleton.dart';
 import '../services/auction_api.dart';
 
 class AuctionPage extends StatefulWidget {
@@ -124,7 +125,7 @@ class _AuctionPageState extends State<AuctionPage>
             icon: const Icon(Icons.refresh),
             label: const Text('Retry'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0A3B81),
+              backgroundColor: const Color(0xFF0668FE),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
           ),
@@ -136,12 +137,12 @@ class _AuctionPageState extends State<AuctionPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color(0xFF0A3B81),
+        backgroundColor: const Color(0xFF0668FE),
         body: Column(
           children: [
             Container(
               padding: const EdgeInsets.fromLTRB(16, 60, 18, 20),
-              color: const Color(0xFF0A3B81),
+              color: const Color(0xFF0668FE),
               child: Column(
                 children: [
                   Container(
@@ -184,7 +185,13 @@ class _AuctionPageState extends State<AuctionPage>
                   children: [
                     Expanded(
                       child: _isLoading
-                          ? const Center(child: CircularProgressIndicator())
+                          ? ListView.builder(
+                              padding: const EdgeInsets.all(16),
+                              itemCount: 5,
+                              itemBuilder: (context, index) {
+                                return const PropertyCardSkeleton();
+                              },
+                            )
                           : _error != null
                               ? _buildErrorView()
                               : RefreshIndicator(

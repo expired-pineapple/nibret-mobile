@@ -69,7 +69,7 @@ class _AuctionCardState extends State<AuctionCard> {
               child: CarouselSlider.builder(
                 itemCount: widget.auction.pictures.length,
                 options: CarouselOptions(
-                  height: 323,
+                  height: 200,
                   viewportFraction: 1.0,
                   enableInfiniteScroll: false,
                   onPageChanged: (index, reason) {

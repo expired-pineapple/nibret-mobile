@@ -6,10 +6,10 @@ class ExpandableText extends StatefulWidget {
   final int maxLines;
 
   const ExpandableText({
-    Key? key,
+    super.key,
     required this.text,
     required this.maxLines,
-  }) : super(key: key);
+  });
 
   @override
   State<ExpandableText> createState() => _ExpandableTextState();
@@ -68,7 +68,7 @@ class _ExpandableTextState extends State<ExpandableText> {
             style: Theme.of(context).textTheme.bodyMedium,
             children: [
               TextSpan(text: truncatedText),
-              TextSpan(text: _ellipsis),
+              const TextSpan(text: _ellipsis),
               TextSpan(
                 text: 'Read more',
                 style: TextStyle(
@@ -94,7 +94,7 @@ class _ExpandableTextState extends State<ExpandableText> {
 
       final textSpan = TextSpan(
         style: Theme.of(context).textTheme.bodyMedium,
-        text: widget.text.substring(0, mid) + _ellipsis + 'Read more',
+        text: '${widget.text.substring(0, mid)}$_ellipsis Read more',
       );
 
       final painter = TextPainter(

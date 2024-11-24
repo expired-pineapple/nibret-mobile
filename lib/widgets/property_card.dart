@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_types_as_parameter_names
-
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
@@ -31,31 +29,6 @@ class _PropertyCardState extends State<PropertyCard> {
 
   final ApiService _apiService = ApiService();
 
-  Future<void> _handleWishlistToggle(
-      Property property, bool isWishlisted) async {
-    try {
-      await _apiService.toggleWishlist(property.id, isWishlisted);
-
-      if (!mounted) return;
-
-      setState(() {
-        property.isWishListed = isWishlisted;
-      });
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to update wishlist: ${e.toString()}'),
-          action: SnackBarAction(
-            label: 'Retry',
-            onPressed: () => _handleWishlistToggle(property, isWishlisted),
-          ),
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final provider = FavoriteProvider.of(context);
@@ -75,7 +48,7 @@ class _PropertyCardState extends State<PropertyCard> {
                 child: CarouselSlider.builder(
                   itemCount: widget.property.pictures.length,
                   options: CarouselOptions(
-                    height: 323,
+                    height: 170,
                     viewportFraction: 1.0,
                     enableInfiniteScroll: false,
                     onPageChanged: (index, reason) {

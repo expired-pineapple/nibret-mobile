@@ -62,14 +62,11 @@ class _AuctionDetailState extends State<AuctionDetail>
     }
   }
 
-  Future<void> _handleRefresh() async {
-    return _loadProperties();
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+          child: CircularProgressIndicator(color: Color(0xFF0668FE)));
     }
 
     if (_error != null) {
@@ -332,40 +329,6 @@ class _AuctionDetailState extends State<AuctionDetail>
                         myLocationEnabled: false,
                         zoomControlsEnabled: false,
                         mapToolbarEnabled: false,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const RequestTour(
-                            property: false,
-                            auctionId: '1',
-                          ),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0A3B81),
-                      minimumSize: const Size.fromHeight(50),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 16,
-                        horizontal: 24,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Request Tour',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),

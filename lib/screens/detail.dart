@@ -247,15 +247,15 @@ class _PropertyDetailsState extends State<PropertyDetails>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const RequestTour(
+                              builder: (_) => RequestTour(
                                 property: true,
-                                auctionId: '1',
+                                propertyId: widget.propertyId,
                               ),
                             ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0A3B81),
+                          backgroundColor: const Color(0xFF0668FE),
                           padding: const EdgeInsets.symmetric(
                             vertical: 16,
                             horizontal: 24,
