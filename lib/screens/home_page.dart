@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:nibret/widgets/MapWithCustomInfo.dart';
 import 'package:nibret/widgets/property_skeleton.dart';
@@ -16,13 +18,59 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+  // Filter states
+  RangeValues _priceRange = const RangeValues(0, 1000);
+  int? _selectedBedrooms;
+  int? _selectedBathrooms;
+  String? _selectedPropertyType;
+  String _searchQuery = '';
+
+  // Filtered properties getter
+  List<Property> get filteredProperties {
+    return _properties.where((property) {
+      // Price filter
+      final price = property.price / 1000; // Convert to thousands
+      if (price < _priceRange.start || price > _priceRange.end) {
+        return false;
+      }
+
+      // Bedrooms filter
+      if (_selectedBedrooms != null &&
+          property.amenities.bedroom != _selectedBedrooms) {
+        return false;
+      }
+
+      // Bathrooms filter
+      if (_selectedBathrooms != null &&
+          property.amenities.bathroom != _selectedBathrooms) {
+        return false;
+      }
+
+      // Property type filter
+      if (_selectedPropertyType != null &&
+          property.type.toLowerCase() != _selectedPropertyType!.toLowerCase()) {
+        return false;
+      }
+
+      // Search query filter
+      if (_searchQuery.isNotEmpty &&
+          !property.name.toLowerCase().contains(_searchQuery.toLowerCase()) &&
+          !property.location.name
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase())) {
+        return false;
+      }
+
+      return true;
+    }).toList();
+  }
+
   final ApiService _apiService = ApiService();
   final WishListsApiService _wishlistservice = WishListsApiService();
   List<Property> _properties = [];
   bool _isLoading = true;
   String? _error;
   List<bool> wishlist = List.generate(10, (index) => false);
-  RangeValues _priceRange = const RangeValues(0, 1000);
 
   late TabController _tabController;
   final List<String> _categories = [

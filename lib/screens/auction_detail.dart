@@ -65,8 +65,10 @@ class _AuctionDetailState extends State<AuctionDetail>
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Center(
-          child: CircularProgressIndicator(color: Color(0xFF0668FE)));
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
     if (_error != null) {
@@ -273,7 +275,7 @@ class _AuctionDetailState extends State<AuctionDetail>
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '${_auction!.startDate}',
+                        _auction!.startDate,
                         style: const TextStyle(fontSize: 16),
                       ),
                     ],
@@ -294,7 +296,7 @@ class _AuctionDetailState extends State<AuctionDetail>
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '${_auction!.endDate}',
+                        _auction!.endDate,
                         style: const TextStyle(fontSize: 16),
                       ),
                     ],

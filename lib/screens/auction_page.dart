@@ -18,10 +18,10 @@ class _AuctionPageState extends State<AuctionPage>
   bool _isLoading = true;
   String? _error;
   List<bool> wishlist = List.generate(10, (index) => false);
-  RangeValues _priceRange = const RangeValues(0, 1000);
-  bool _entirePlace = false;
-  bool _privateRoom = false;
-  bool _sharedRoom = false;
+  final RangeValues _priceRange = const RangeValues(0, 1000);
+  final bool _entirePlace = false;
+  final bool _privateRoom = false;
+  final bool _sharedRoom = false;
 
   @override
   void initState() {
@@ -95,7 +95,7 @@ class _AuctionPageState extends State<AuctionPage>
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Network Failed. Please try again.'),
+          content: const Text('Network Failed. Please try again.'),
           action: SnackBarAction(
             label: 'Retry',
             onPressed: () => _handleWishlistToggle(property, isWishlisted),

@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.nibret"
-    compileSdk = 33
+    compileSdk = 34
     ndkVersion = "25.1.8937393"
 
     compileOptions {
@@ -15,13 +15,13 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = '1.8'
     }
 
     defaultConfig {
         applicationId = "com.example.nibret"
-        minSdk = 21 
-        targetSdk = 29
+        minSdk = 20
+        targetSdk = 34 
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -34,7 +34,10 @@ android {
             storePassword 'nibret'
         }
         release {
-            // Configure your release signing here
+            keyAlias 'upload'
+            keyPassword 'nibret'
+            storeFile file('upload-keystore.jks')
+            storePassword 'nibret'
         }
     }
 
@@ -50,4 +53,9 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
 }
