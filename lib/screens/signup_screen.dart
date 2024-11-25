@@ -178,25 +178,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   return null;
                 }),
                 const SizedBox(height: 32),
-                // Login button
-                ElevatedButton(
-                  onPressed: signUp,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0XFF163C9F),
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: signUp,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0XFF163C9F),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'Sign up',
-                    style: TextStyle(
+                    child: const Text(
+                      'Sign Up',
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white),
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 const SizedBox(height: 18),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

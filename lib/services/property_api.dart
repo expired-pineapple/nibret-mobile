@@ -76,29 +76,6 @@ class ApiService {
     }
   }
 
-  Future<void> toggleWishlist(String propertyId, bool isWishlisted) async {
-    try {
-      final response = await _client.post(
-        Uri.parse('$baseUrl/properties/$propertyId/wishlist'),
-        body: {'is_wishlisted': isWishlisted.toString()},
-      ).timeout(timeoutDuration);
-
-      if (response.statusCode != 200) {
-        throw HttpException(
-            'Failed to update wishlist. Status: ${response.statusCode}');
-      }
-    } on SocketException catch (e) {
-      throw HttpException(
-          'Network error: Please check your internet connection. ${e.message}');
-    } on TimeoutException {
-      throw const HttpException('Request timed out. Please try again.');
-    } on HttpException catch (e) {
-      throw HttpException(e.message);
-    } catch (e) {
-      throw HttpException('An unexpected error occurred from api service: $e');
-    }
-  }
-
   void dispose() {
     _client.close();
   }

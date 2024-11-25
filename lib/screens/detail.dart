@@ -3,9 +3,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:nibret/models/property.dart';
-import 'package:nibret/provider/favorite_provider.dart';
 import 'package:nibret/screens/request_tour.dart';
 import 'package:nibret/services/property_api.dart';
+import 'package:nibret/services/wishlists_api.dart';
 import 'package:nibret/widgets/expandable_text.dart';
 import 'package:nibret/widgets/loaners_card.dart';
 
@@ -15,8 +15,6 @@ class PropertyDetails extends StatefulWidget {
 
   @override
   State<PropertyDetails> createState() => _PropertyDetailsState();
-
-  void onWishlistToggle(bool isWishListed) {}
 }
 
 class _PropertyDetailsState extends State<PropertyDetails>
@@ -28,6 +26,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
   bool _isLoading = true;
   String? _error;
   List<bool> wishlist = List.generate(10, (index) => false);
+  final WishListsApiService _wishListsApiService = WishListsApiService();
 
   @override
   void initState() {
@@ -91,7 +90,6 @@ class _PropertyDetailsState extends State<PropertyDetails>
 
   @override
   Widget build(BuildContext context) {
-    final provider = FavoriteProvider.of(context);
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -178,17 +176,29 @@ class _PropertyDetailsState extends State<PropertyDetails>
                         ),
                         IconButton(
                           icon: Icon(
-                            provider.isExist(widget.propertyId)
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: provider.isExist(widget.propertyId)
+                            Icons.favorite,
+                            color: _property?.isWishListed ?? false
                                 ? Colors.red
                                 : Colors.white,
                           ),
-                          onPressed: () {
-                            provider.toggleFavorite(widget.propertyId);
-                            // widget.onWishlistToggle(_property!.isWishListed);
-                          },
+                          onPressed: _isLoading
+                              ? null
+                              : () async {
+                                  setState(() {
+                                    _isLoading = true;
+                                  });
+                                  try {
+                                    await _wishListsApiService.toggleWishlist(
+                                        _property!.id,
+                                        _property?.isWishListed ?? false);
+                                  } catch (e) {
+                                    // Handle error (optional)
+                                  } finally {
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                  }
+                                },
                         ),
                       ],
                     ),

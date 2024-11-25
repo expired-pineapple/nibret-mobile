@@ -19,7 +19,7 @@ class WishlistPage extends StatefulWidget {
 
 class _WishlistPageState extends State<WishlistPage>
     with TickerProviderStateMixin {
-  final ApiService _apiService = ApiService();
+  final WishListsApiService _apiService = WishListsApiService();
   late TabController _tabController;
   bool _isAuthenticated = false;
   List<Auction> _auctions = [];

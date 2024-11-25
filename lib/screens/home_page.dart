@@ -4,6 +4,7 @@ import 'package:nibret/widgets/property_skeleton.dart';
 import '../services/property_api.dart';
 import '../models/property.dart';
 import '../widgets/property_card.dart';
+import 'package:nibret/services/wishlists_api.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:nibret/screens/map_page.dart';
 
@@ -16,6 +17,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final ApiService _apiService = ApiService();
+  final WishListsApiService _wishlistservice = WishListsApiService();
   List<Property> _properties = [];
   bool _isLoading = true;
   String? _error;
@@ -95,7 +97,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<void> _handleWishlistToggle(
       Property property, bool isWishlisted) async {
     try {
-      await _apiService.toggleWishlist(property.id, isWishlisted);
+      await _wishlistservice.toggleWishlist(property.id, isWishlisted);
 
       if (!mounted) return;
 

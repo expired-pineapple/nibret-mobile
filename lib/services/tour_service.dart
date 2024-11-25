@@ -25,7 +25,6 @@ class TourApiService {
           'date': tourDate.toIso8601String(),
         }),
       );
-      print(response.body);
       if (response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {

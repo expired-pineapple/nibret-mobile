@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:nibret/provider/auth_provider.dart';
-import 'package:nibret/provider/favorite_provider.dart';
 import 'package:nibret/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
@@ -10,7 +9,6 @@ void main() {
     child: MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
       ],
       child: const MyApp(),
     ),

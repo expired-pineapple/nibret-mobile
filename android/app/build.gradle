@@ -1,14 +1,13 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
 }
 
 android {
     namespace = "com.example.nibret"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion= "25.1.8937393"
+    compileSdk = 33
+    ndkVersion = "25.1.8937393"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -21,8 +20,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.nibret"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 21 
+        targetSdk = 29
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -34,6 +33,9 @@ android {
             storeFile file('upload-keystore.jks')
             storePassword 'nibret'
         }
+        release {
+            // Configure your release signing here
+        }
     }
 
     buildTypes {
@@ -41,7 +43,7 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 }
