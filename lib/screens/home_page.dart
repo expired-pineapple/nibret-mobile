@@ -92,7 +92,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _initializeData();
-    _tabController = TabController(length: _categories.length, vsync: this);
+    _tabController = TabController(
+      length: _categories.length,
+      vsync: this,
+      animationDuration: const Duration(milliseconds: 300),
+    );
   }
 
   @override
@@ -688,6 +692,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             : RefreshIndicator(
                                 onRefresh: _handleRefresh,
                                 child: TabBarView(
+                                  physics: const PageScrollPhysics(),
                                   controller: _tabController,
                                   children: _categories.map((category) {
                                     // Filter properties based on category

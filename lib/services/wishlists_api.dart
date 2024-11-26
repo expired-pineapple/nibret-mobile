@@ -6,7 +6,7 @@ import 'package:nibret/models/wishlist_model.dart';
 import 'package:nibret/services/auth_service.dart';
 
 class WishListsApiService {
-  static const String baseUrl = 'https://nibret-backend-1.onrender.com';
+  static const String baseUrl = 'https://nibret-vercel-django.vercel.app';
   final http.Client _client = http.Client();
   static const Duration timeoutDuration = Duration(seconds: 30);
 

@@ -3,7 +3,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:nibret/models/auction.dart';
-import 'package:nibret/screens/request_tour.dart';
 import 'package:nibret/services/auction_api.dart';
 import 'package:nibret/widgets/expandable_text.dart';
 

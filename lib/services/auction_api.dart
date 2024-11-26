@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:nibret/models/auction.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://nibret-backend-1.onrender.com';
+  static const String baseUrl = 'https://nibret-vercel-django.vercel.app';
 
   // Create a custom http client with timeout
   final http.Client _client = http.Client();

@@ -7,7 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:nibret/models/user_model.dart';
 
 class AuthService {
-  final String baseUrl = 'https://nibret-backend-1.onrender.com';
+  final String baseUrl = 'https://nibret-vercel-django.vercel.app';
   final _storage = const FlutterSecureStorage();
   static const String _tokenKey = 'access';
   static const String _userKey = 'user';

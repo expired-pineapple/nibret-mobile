@@ -32,7 +32,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           await googleUser!.authentication;
 
       final response = await http.post(
-        Uri.parse('https://nibret-backend-1.onrender.com/accounts/google/'),
+        Uri.parse('https://nibret-vercel-django.vercel.app/accounts/google/'),
         headers: <String, String>{'Content-Type': 'application/json'},
         body: jsonEncode({
           "access_token": googleAuth.accessToken,
@@ -55,7 +55,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       try {
         final response = await http.post(
           Uri.parse(
-              'https://nibret-backend-1.onrender.com/accounts/registration/'),
+              'https://nibret-vercel-django.vercel.app/accounts/registration/'),
           headers: <String, String>{'Content-Type': 'application/json'},
           body: jsonEncode({
             "username":

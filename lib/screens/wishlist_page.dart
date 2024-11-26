@@ -158,7 +158,7 @@ class _WishlistPageState extends State<WishlistPage>
                 Image.asset('assets/Logo.png', height: 99, width: 120),
                 const Text(
                   "Sign in to save your favorite homes",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),

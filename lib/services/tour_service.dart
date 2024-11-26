@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:nibret/services/auth_service.dart';
 
 class TourApiService {
-  final String baseUrl = 'https://nibret-backend-1.onrender.com';
+  final String baseUrl = 'https://nibret-vercel-django.vercel.app';
 
   Future<Map<String, dynamic>> requestTour({
     required String propertyId,
