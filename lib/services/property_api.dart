@@ -43,7 +43,7 @@ class ApiService {
     } on HttpException catch (e) {
       throw HttpException(e.message);
     } catch (e) {
-      throw HttpException('An unexpected error occurred listing here: $e');
+      throw const HttpException('An unexpected error occurred listing here');
     }
   }
 

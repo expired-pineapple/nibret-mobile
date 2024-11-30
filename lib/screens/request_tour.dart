@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:nibret/screens/login_screen.dart';
 import 'package:nibret/services/auth_service.dart';
 import 'package:nibret/services/tour_service.dart';
+import 'package:toastification/toastification.dart';
 
 class RequestTour extends StatefulWidget {
   final String propertyId;
@@ -78,13 +79,6 @@ class _RequestTourState extends State<RequestTour> {
 
   Future<void> _submitTourRequest() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a date and time')),
-      );
-      return;
-    }
-
     setState(() {
       _isSubmitting = true;
     });
@@ -106,15 +100,11 @@ class _RequestTourState extends State<RequestTour> {
 
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Tour request submitted successfully')),
-        );
+        _showToast('Tour request submitted successfully');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not submit request')),
-        );
+        _showToast('Tour request submitted successfully', isError: true);
       }
     } finally {
       if (mounted) {
@@ -123,6 +113,16 @@ class _RequestTourState extends State<RequestTour> {
         });
       }
     }
+  }
+
+  void _showToast(String message, {bool isError = false}) {
+    toastification.show(
+        type: !isError ? ToastificationType.success : ToastificationType.error,
+        style: ToastificationStyle.flatColored,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: Text(message),
+        animationDuration: const Duration(milliseconds: 300),
+        alignment: Alignment.bottomRight);
   }
 
   @override

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:nibret/screens/detail.dart';
+import 'package:nibret/screens/login_screen.dart';
+import 'package:nibret/services/auth_service.dart';
 import 'package:nibret/services/property_api.dart';
 import 'package:nibret/services/wishlists_api.dart';
 import '../models/property.dart';
@@ -18,6 +20,18 @@ class PropertyCard extends StatefulWidget {
 
   @override
   State<PropertyCard> createState() => _PropertyCardState();
+}
+
+final AuthService _authService = AuthService();
+Future<void> _checkAuthentication(BuildContext context) async {
+  bool isLoggedIn = await _authService.isLoggedIn();
+  if (!isLoggedIn) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LoginScreen(),
+        ));
+  }
 }
 
 class _PropertyCardState extends State<PropertyCard> {
@@ -133,6 +147,7 @@ class _PropertyCardState extends State<PropertyCard> {
                             _isLoading = true;
                           });
                           try {
+                            _checkAuthentication(context);
                             await _wishListsApiService.toggleWishlist(
                                 widget.property.id,
                                 !widget.property.isWishListed);

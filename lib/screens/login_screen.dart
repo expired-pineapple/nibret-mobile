@@ -13,6 +13,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool _isSubmitting = false;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -20,6 +21,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> logIn() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isSubmitting = true;
+      });
+
       try {
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
         await authProvider.login(
@@ -28,8 +33,6 @@ class _LoginScreenState extends State<LoginScreen> {
         );
 
         if (!mounted) return;
-
-        _showToast("Login successful", isError: false);
 
         Navigator.pushAndRemoveUntil(
           context,
@@ -49,6 +52,12 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         _showToast(errorMessage, isError: true);
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isSubmitting = false;
+          });
+        }
       }
     }
   }
@@ -165,7 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Login button
                 ElevatedButton(
-                  onPressed: logIn,
+                  onPressed: _isSubmitting ? null : logIn,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0XFF163C9F),
                     padding: const EdgeInsets.symmetric(vertical: 15),
@@ -173,13 +182,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
-                    'Log In',
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Log In',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
+                        ),
                 ),
                 const SizedBox(height: 20),
 

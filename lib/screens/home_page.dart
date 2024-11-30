@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:nibret/screens/login_screen.dart';
+import 'package:nibret/services/auth_service.dart';
 import 'package:nibret/widgets/MapWithCustomInfo.dart';
 import 'package:nibret/widgets/property_skeleton.dart';
 import '../services/property_api.dart';
@@ -133,16 +135,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         _error = e.toString();
         _isLoading = false;
       });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          action: SnackBarAction(
-            label: 'Retry',
-            onPressed: _loadProperties,
-          ),
-        ),
-      );
     }
   }
 
@@ -656,20 +648,44 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     tabs: _categories.map((category) {
                       IconData iconData;
                       switch (category.toLowerCase()) {
-                        case 'Luxury Apartments':
-                        case 'Apartment':
-                        case 'Condominium':
-                          iconData = Icons.apartment;
+                        case 'all':
+                          iconData = Icons.dashboard_rounded;
                           break;
-                        case 'Villa':
-                        case 'Penthouse':
-                          iconData = Icons.villa_outlined;
+                        case 'luxury apartments':
+                          iconData = Icons.apartment_rounded;
                           break;
-                        case 'Townhouse':
-                          iconData = Icons.cottage_outlined;
+                        case 'villa':
+                          iconData = Icons.villa_rounded;
+                          break;
+                        case 'plot land':
+                          iconData = Icons.landscape_rounded;
+                          break;
+                        case 'single family':
+                          iconData = Icons.home_rounded;
+                          break;
+                        case 'apartment':
+                          iconData = Icons.apartment_rounded;
+                          break;
+                        case 'penthouse':
+                          iconData = Icons.business_rounded;
+                          break;
+                        case 'townhouse':
+                          iconData = Icons.home_work_rounded;
+                          break;
+                        case 'commercial':
+                          iconData = Icons.store_rounded;
+                          break;
+                        case 'condominium':
+                          iconData = Icons.location_city_rounded;
+                          break;
+                        case 'office space':
+                          iconData = Icons.corporate_fare_rounded;
+                          break;
+                        case 'warehouse':
+                          iconData = Icons.warehouse_rounded;
                           break;
                         default:
-                          iconData = Icons.house_outlined;
+                          iconData = Icons.house_rounded;
                       }
 
                       return Tab(
@@ -734,7 +750,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ],
               ),
             ),
-          ),
+          )
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(

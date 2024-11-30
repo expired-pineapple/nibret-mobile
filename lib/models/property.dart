@@ -183,10 +183,8 @@ class Property {
   final double price;
   final double discount;
   final bool soldOut;
-  final bool isStore;
   final String type;
   final DateTime moveInDate;
-  final bool isAuction;
   final List<LoanerResponse> loaners;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -203,10 +201,8 @@ class Property {
       required this.price,
       required this.discount,
       required this.soldOut,
-      required this.isStore,
       required this.type,
       required this.moveInDate,
-      required this.isAuction,
       required this.createdAt,
       required this.updatedAt,
       required this.loaners,
@@ -227,13 +223,11 @@ class Property {
       price: json['price'],
       discount: json['discount'],
       soldOut: json['sold_out'],
-      isStore: json['is_store'],
       type: json['type'],
       loaners: (json['loaner_detail'] as List<dynamic>)
           .map((loaners) => LoanerResponse.fromJson(loaners))
           .toList(),
       moveInDate: DateTime.parse(json['move_in_date']),
-      isAuction: json['is_auction'],
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
       createdBy: json['created_by'],
