@@ -214,11 +214,7 @@ class _WishlistPageState extends State<WishlistPage>
             itemCount: _properties.length,
             itemBuilder: (context, index) {
               final property = _properties[index];
-              return PropertyCard(
-                property: property,
-                onWishlistToggle: (isWishlisted) =>
-                    _handleWishlistToggle(property, isWishlisted),
-              );
+              return PropertyCard(property: property);
             },
           ),
         ),

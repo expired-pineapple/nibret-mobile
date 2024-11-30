@@ -10,12 +10,10 @@ import '../models/property.dart';
 
 class PropertyCard extends StatefulWidget {
   final Property property;
-  final Function(bool) onWishlistToggle;
 
   const PropertyCard({
     super.key,
     required this.property,
-    required this.onWishlistToggle,
   });
 
   @override
@@ -150,8 +148,6 @@ class _PropertyCardState extends State<PropertyCard> {
                             _checkAuthentication(context);
                             await _wishListsApiService.toggleWishlist(
                                 widget.property.id,
-                                !widget.property.isWishListed);
-                            widget.onWishlistToggle(
                                 !widget.property.isWishListed);
                           } catch (e) {
                             // Handle error (optional)

@@ -269,14 +269,7 @@ class _PropertyMapScreenState extends State<PropertyMapScreen> {
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                PropertyCard(
-                  property: property,
-                  onWishlistToggle: (newValue) {
-                    _selectedProperty.value = property.copyWith(
-                      isWishListed: newValue,
-                    );
-                  },
-                ),
+                PropertyCard(property: property),
               ],
             ),
           ),

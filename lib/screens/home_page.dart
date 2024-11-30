@@ -594,6 +594,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       border: Border.all(color: Colors.white),
                     ),
                     child: TextField(
+                      style: const TextStyle(
+                          color: Colors.white), // Add this for white text
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value.trim();
+                        });
+                      },
                       decoration: InputDecoration(
                         hintText: 'Search destinations',
                         hintStyle:
@@ -620,10 +627,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           borderRadius: BorderRadius.circular(25),
                           borderSide: BorderSide.none,
                         ),
+                        fillColor: const Color.fromRGBO(0, 0, 0, 1)
+                            .withOpacity(0.3), // Add slight background
+                        filled: true, // Enable background fill
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 20),
                       ),
-                    )),
+                    ))
               ],
             ),
           ),
@@ -735,11 +745,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                   filteredProperties[index];
                                               return PropertyCard(
                                                 property: property,
-                                                onWishlistToggle:
-                                                    (isWishlisted) =>
-                                                        _handleWishlistToggle(
-                                                            property,
-                                                            isWishlisted),
                                               );
                                             },
                                           );

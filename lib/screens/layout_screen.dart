@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nibret/provider/auth_provider.dart';
 import 'package:nibret/screens/auction_page.dart';
+import 'package:nibret/screens/home_loan.dart';
 import 'package:nibret/screens/home_page.dart';
 import 'package:nibret/screens/login_screen.dart';
 import 'package:nibret/screens/profile_screen.dart';
@@ -38,6 +39,7 @@ class _MainScreenState extends State<MainScreen> {
   List<Widget> _buildScreens() {
     return [
       const HomePage(),
+      const HomeLoan(),
       const WishlistPage(),
       const AuctionPage(),
       const ProfileScreen(),
@@ -49,6 +51,12 @@ class _MainScreenState extends State<MainScreen> {
       PersistentBottomNavBarItem(
         icon: const Icon(Icons.search),
         title: "Explore",
+        activeColorPrimary: const Color(0XFF163C9F),
+        inactiveColorPrimary: Colors.grey,
+      ),
+      PersistentBottomNavBarItem(
+        icon: const Icon(Icons.currency_exchange),
+        title: "Home loans",
         activeColorPrimary: const Color(0XFF163C9F),
         inactiveColorPrimary: Colors.grey,
       ),
@@ -88,7 +96,7 @@ class _MainScreenState extends State<MainScreen> {
           final authProvider =
               Provider.of<AuthProvider>(context, listen: false);
 
-          if (index == 3 && !authProvider.isAuthenticated) {
+          if (index == 4 && !authProvider.isAuthenticated) {
             // Navigate to login screen while preserving the desired tab index
             Navigator.push(
               context,
@@ -99,7 +107,7 @@ class _MainScreenState extends State<MainScreen> {
               // After login, if successful, the user will be redirected back here
               // The controller will maintain the selected index
               if (authProvider.isAuthenticated) {
-                _controller.index = 3; // Set to profile tab
+                _controller.index = 4; // Set to profile tab
               } else {
                 _controller.index =
                     0; // Reset to home tab if login was cancelled
