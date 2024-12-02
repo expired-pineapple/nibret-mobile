@@ -30,8 +30,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   // Filtered properties getter
   List<Property> get filteredProperties {
     return _properties.where((property) {
-      // Price filter
-      final price = property.price / 1000; // Convert to thousands
+      final price = property.price * 1000;
       if (price < _priceRange.start || price > _priceRange.end) {
         return false;
       }

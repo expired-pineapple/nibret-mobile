@@ -188,7 +188,6 @@ class Property {
   final List<LoanerResponse> loaners;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final int createdBy;
   bool isWishListed;
 
   Property(
@@ -206,7 +205,6 @@ class Property {
       required this.createdAt,
       required this.updatedAt,
       required this.loaners,
-      required this.createdBy,
       this.isWishListed = false});
 
   factory Property.fromJson(Map<String, dynamic> json) {
@@ -230,7 +228,6 @@ class Property {
       moveInDate: DateTime.parse(json['move_in_date']),
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
-      createdBy: json['created_by'],
     );
   }
 

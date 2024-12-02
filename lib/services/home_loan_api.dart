@@ -30,8 +30,9 @@ class HomeLoanApiService {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => LoanResponse.fromJson(json)).toList();
+        final Map<String, dynamic> data = json.decode(response.body);
+        final List<dynamic> jsonList = data['results'];
+        return jsonList.map((json) => LoanResponse.fromJson(json)).toList();
       } else {
         throw Exception('Failed to load home loans');
       }

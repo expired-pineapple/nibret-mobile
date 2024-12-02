@@ -19,17 +19,8 @@ class ApiService {
           .timeout(timeoutDuration);
 
       if (response.statusCode == 200) {
-        print(response.body);
-        final List<dynamic> jsonList = json.decode(response.body);
-
-        final proprty =
-            jsonList.map((json) => Property.fromJson(json)).toList();
-        for (var property in proprty) {
-          print('Property: ${property.name}');
-          for (var picture in property.pictures) {
-            print('Image URL: ${picture.imageUrl}');
-          }
-        }
+        final Map<String, dynamic> data = json.decode(response.body);
+        final List<dynamic> jsonList = data['results'];
         return jsonList.map((json) => Property.fromJson(json)).toList();
       } else {
         throw HttpException(
@@ -43,7 +34,8 @@ class ApiService {
     } on HttpException catch (e) {
       throw HttpException(e.message);
     } catch (e) {
-      throw const HttpException('An unexpected error occurred listing here');
+      throw HttpException(
+          'Network error: Please check your internet connection. ${e}');
     }
   }
 
