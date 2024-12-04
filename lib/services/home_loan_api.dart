@@ -37,6 +37,7 @@ class HomeLoanApiService {
         throw Exception('Failed to load home loans');
       }
     } catch (e) {
+      print(e);
       throw Exception('Error fetching home loans: $e');
     }
   }

@@ -19,17 +19,9 @@ class ApiService {
           .timeout(timeoutDuration);
 
       if (response.statusCode == 200) {
-        print(response.body);
-        final List<dynamic> jsonList = json.decode(response.body);
-
-        final proprty = jsonList.map((json) => Auction.fromJson(json)).toList();
-        for (var property in proprty) {
-          print('Auction: ${property.name}');
-          for (var picture in property.pictures) {
-            print('Image URL: ${picture.imageUrl}');
-          }
-        }
-        return jsonList.map((json) => Auction.fromJson(json)).toList();
+        Map<String, dynamic> jsonMap = json.decode(response.body);
+        List<dynamic> results = jsonMap['results'];
+        return results.map((json) => Auction.fromJson(json)).toList();
       } else {
         throw HttpException(
             'Failed to load properties. Status: ${response.statusCode}');
@@ -53,7 +45,6 @@ class ApiService {
           .timeout(timeoutDuration);
 
       if (response.statusCode == 200) {
-        print(response.body);
         final jsonData = json.decode(response.body);
 
         final auction = Auction.fromJson(jsonData);

@@ -92,14 +92,6 @@ class Location {
   }
 }
 
-// Get the actual image URL
-String get directImageUrl {
-  // For testing, you can use a placeholder image service
-  return 'https://res.cloudinary.com/ddbdbuuqw/image/upload/v1234567890/pgvqhicnggfp4hs2xna0.jpg';
-
-  // Once you have the correct Cloudinary URL format, use something like:
-  // return 'https://res.cloudinary.com/your-cloud-name/image/upload/$imageUrl';
-}
 
 class Pictures {
   final String id;
@@ -186,8 +178,6 @@ class Property {
   final String type;
   final DateTime moveInDate;
   final List<LoanerResponse> loaners;
-  final DateTime createdAt;
-  final DateTime updatedAt;
   bool isWishListed;
 
   Property(
@@ -202,8 +192,6 @@ class Property {
       required this.soldOut,
       required this.type,
       required this.moveInDate,
-      required this.createdAt,
-      required this.updatedAt,
       required this.loaners,
       this.isWishListed = false});
 
@@ -215,7 +203,7 @@ class Property {
           .map((pictureJson) => Pictures.fromJson(pictureJson))
           .toList(),
       amenities: Amenities.fromJson(
-          json['amenties']), // Note: Backend has a typo 'amenties'
+          json['amenties']), 
       name: json['name'],
       description: json['description'],
       price: json['price'],
@@ -226,8 +214,6 @@ class Property {
           .map((loaners) => LoanerResponse.fromJson(loaners))
           .toList(),
       moveInDate: DateTime.parse(json['move_in_date']),
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
     );
   }
 
