@@ -19,10 +19,10 @@ class ApiService {
           .timeout(timeoutDuration);
 
       if (response.statusCode == 200) {
-        print(response.body);
-        Map<String, dynamic> jsonMap = json.decode(response.body);
-        List<dynamic> results = jsonMap['results'];
-        return results.map((json) => Property.fromJson(json)).toList();
+
+        final Map<String, dynamic> data = json.decode(response.body);
+        final List<dynamic> jsonList = data['results'];
+        return jsonList.map((json) => Property.fromJson(json)).toList();
       } else {
         throw HttpException(
             'Failed to load properties. Status: ${response.statusCode}');
@@ -35,8 +35,8 @@ class ApiService {
     } on HttpException catch (e) {
       throw HttpException(e.message);
     } catch (e) {
-      print(e);
-      throw const HttpException('An unexpected error occurred listing here');
+      throw HttpException(
+          'Network error: Please check your internet connection. ${e}');
     }
   }
 

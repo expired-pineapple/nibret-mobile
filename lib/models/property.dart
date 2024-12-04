@@ -92,14 +92,6 @@ class Location {
   }
 }
 
-// Get the actual image URL
-String get directImageUrl {
-  // For testing, you can use a placeholder image service
-  return 'https://res.cloudinary.com/ddbdbuuqw/image/upload/v1234567890/pgvqhicnggfp4hs2xna0.jpg';
-
-  // Once you have the correct Cloudinary URL format, use something like:
-  // return 'https://res.cloudinary.com/your-cloud-name/image/upload/$imageUrl';
-}
 
 class Pictures {
   final String id;
@@ -211,7 +203,7 @@ class Property {
           .map((pictureJson) => Pictures.fromJson(pictureJson))
           .toList(),
       amenities: Amenities.fromJson(
-          json['amenties']), // Note: Backend has a typo 'amenties'
+          json['amenties']), 
       name: json['name'],
       description: json['description'],
       price: json['price'],
