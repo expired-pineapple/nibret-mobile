@@ -20,17 +20,9 @@ class ApiService {
 
       if (response.statusCode == 200) {
         print(response.body);
-        final List<dynamic> jsonList = json.decode(response.body);
-
-        final proprty =
-            jsonList.map((json) => Property.fromJson(json)).toList();
-        for (var property in proprty) {
-          print('Property: ${property.name}');
-          for (var picture in property.pictures) {
-            print('Image URL: ${picture.imageUrl}');
-          }
-        }
-        return jsonList.map((json) => Property.fromJson(json)).toList();
+        Map<String, dynamic> jsonMap = json.decode(response.body);
+        List<dynamic> results = jsonMap['results'];
+        return results.map((json) => Property.fromJson(json)).toList();
       } else {
         throw HttpException(
             'Failed to load properties. Status: ${response.statusCode}');
@@ -43,6 +35,7 @@ class ApiService {
     } on HttpException catch (e) {
       throw HttpException(e.message);
     } catch (e) {
+      print(e);
       throw const HttpException('An unexpected error occurred listing here');
     }
   }

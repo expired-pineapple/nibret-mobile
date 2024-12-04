@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   int? _selectedBathrooms;
   String? _selectedPropertyType;
   String _searchQuery = '';
+  late StreamSubscription? _subscription;
 
   // Filtered properties getter
   List<Property> get filteredProperties {
@@ -93,16 +95,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _initializeData();
-    _tabController = TabController(
-      length: _categories.length,
-      vsync: this,
-      animationDuration: const Duration(milliseconds: 300),
-    );
+    if (mounted) {
+      _initializeData();
+      _tabController = TabController(
+        length: _categories.length,
+        vsync: this,
+        animationDuration: const Duration(milliseconds: 300),
+      );
+    }
   }
 
   @override
   void dispose() {
+    _subscription?.cancel();
+    _tabController.dispose();
     _apiService.dispose();
     super.dispose();
   }
@@ -121,7 +127,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     try {
       final properties = await _apiService.getProperties();
-
       if (!mounted) return;
 
       setState(() {
@@ -132,7 +137,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       if (!mounted) return;
 
       setState(() {
-        _error = e.toString();
+        _error = "Oops, Something went wrong.";
         _isLoading = false;
       });
     }

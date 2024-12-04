@@ -67,7 +67,7 @@ class _HomeLoanScreenState extends State<HomeLoan> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = "Opps, Something went wrong.";
         _isLoading = false;
       });
     }
@@ -96,6 +96,7 @@ class _HomeLoanScreenState extends State<HomeLoan> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Home Loans'),
       ),
@@ -151,7 +152,7 @@ class _HomeLoanScreenState extends State<HomeLoan> {
                             return const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(16.0),
-                                child: Text('No more loans available'),
+                                child: Text('No home loans available'),
                               ),
                             );
                           }
@@ -186,17 +187,6 @@ class _HomeLoanScreenState extends State<HomeLoan> {
                                 const SizedBox(height: 16),
                                 Row(
                                   children: [
-                                    SizedBox(
-                                      width: 40,
-                                      height: 40,
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(4),
-                                        child: Image.network(
-                                          item.loaner.logo,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(

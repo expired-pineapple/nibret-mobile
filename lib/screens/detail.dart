@@ -59,7 +59,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
       if (!mounted) return;
 
       setState(() {
-        _error = e.toString();
+        _error = "Opps, Something went wrong.";
         _isLoading = false;
       });
     }
