@@ -17,6 +17,7 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   final ApiService _apiService = ApiService();
   bool _isLoading = true;
+  // ignore: unused_field
   String? _error;
   LatLng? _currentLocation;
   late GoogleMapController googleMapController;
@@ -59,20 +60,16 @@ class _MapScreenState extends State<MapScreen> {
         return;
       }
 
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      Position position = await Geolocator.getCurrentPosition();
 
       setState(() {
         _currentLocation = LatLng(position.latitude, position.longitude);
         _isLoadingLocation = false;
       });
 
-      if (googleMapController != null) {
-        googleMapController.animateCamera(
-          CameraUpdate.newLatLng(_currentLocation!),
-        );
-      }
+      googleMapController.animateCamera(
+        CameraUpdate.newLatLng(_currentLocation!),
+      );
     } catch (e) {
       setState(() {
         _isLoadingLocation = false;

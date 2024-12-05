@@ -30,7 +30,7 @@ class AuthProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      print('Error initializing auth: $e');
+      throw Exception("Something went wrong.");
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -43,26 +43,6 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final response = await _authService.loginWithEmail(email, password);
-      print(response['user']);
-      _user = User.fromJson(response['user']);
-      print(_user);
-      _isAuthenticated = true;
-    } catch (e) {
-      print(e);
-      _isAuthenticated = false;
-      rethrow;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> loginWithGoogle() async {
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      final response = await _authService.loginWithGoogle();
       _user = User.fromJson(response['user']);
       _isAuthenticated = true;
     } catch (e) {

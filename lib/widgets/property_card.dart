@@ -4,7 +4,6 @@ import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:nibret/screens/detail.dart';
 import 'package:nibret/screens/login_screen.dart';
 import 'package:nibret/services/auth_service.dart';
-import 'package:nibret/services/property_api.dart';
 import 'package:nibret/services/wishlists_api.dart';
 import '../models/property.dart';
 
@@ -21,7 +20,7 @@ class PropertyCard extends StatefulWidget {
 }
 
 final AuthService _authService = AuthService();
-Future<void> _checkAuthentication(BuildContext context) async {
+Future<void> _checkAuthentication(context) async {
   bool isLoggedIn = await _authService.isLoggedIn();
   if (!isLoggedIn) {
     Navigator.push(
@@ -35,8 +34,6 @@ Future<void> _checkAuthentication(BuildContext context) async {
 class _PropertyCardState extends State<PropertyCard> {
   int _currentImageIndex = 0;
   bool _isLoading = false;
-
-  final ApiService _apiService = ApiService();
   final WishListsApiService _wishListsApiService = WishListsApiService();
 
   @override

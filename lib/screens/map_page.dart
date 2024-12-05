@@ -65,9 +65,7 @@ class _PropertyMapScreenState extends State<PropertyMapScreen> {
         return;
       }
 
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      final position = await Geolocator.getCurrentPosition();
 
       _currentPosition.value = LatLng(position.latitude, position.longitude);
 
@@ -209,12 +207,10 @@ class _PropertyMapScreenState extends State<PropertyMapScreen> {
     _customInfoWindowController.googleMapController = controller;
     _isMapReady.value = true;
 
-    if (_currentPosition.value != null) {
-      _animateToPosition(
-        latitude: widget.latitude ?? _currentPosition.value.latitude,
-        longitude: widget.longitude ?? _currentPosition.value.longitude,
-      );
-    }
+    _animateToPosition(
+      latitude: widget.latitude ?? _currentPosition.value.latitude,
+      longitude: widget.longitude ?? _currentPosition.value.longitude,
+    );
   }
 
   Future<void> _initializeMap() async {

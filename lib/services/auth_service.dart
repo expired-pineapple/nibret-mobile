@@ -16,7 +16,6 @@ class AuthService {
   static const Duration timeoutDuration = Duration(seconds: 30);
   // Token management methods
   Future<void> saveToken(String token) async {
-    print(token);
     await _storage.write(key: _tokenKey, value: token);
   }
 
@@ -30,12 +29,10 @@ class AuthService {
 
   // User data management
   Future<void> saveUserData(Map<String, dynamic> userData) async {
-    print("saveUserData");
-    print(userData);
     try {
       await _storage.write(key: _userKey, value: json.encode(userData));
     } catch (e) {
-      print(e);
+      throw Exception("Failed while saving user data");
     }
   }
 
@@ -53,10 +50,7 @@ class AuthService {
 
   Future<User> getUser() async {
     try {
-      // Get the token from secure storage
-      print("HERE");
       final token = await getToken();
-      print(token);
 
       if (token == null) {
         throw const HttpException('No authentication token found');
@@ -71,7 +65,6 @@ class AuthService {
       ).timeout(timeoutDuration);
 
       if (response.statusCode == 200) {
-        print(response.body);
         final jsonData = json.decode(response.body);
         final userResponse = User.fromJson(jsonData);
         return userResponse;
@@ -117,7 +110,6 @@ class AuthService {
         throw Exception('Failed to login: ${response.body}');
       }
     } catch (e) {
-      print(e);
       throw Exception('Login failed: $e');
     }
   }
@@ -130,13 +122,6 @@ class AuthService {
       if (token == null) {
         throw const HttpException('No authentication token found');
       }
-
-      print(json.encode({
-        'first_name': firstName,
-        'last_name': lastName,
-        'email': email,
-        'phone': phone
-      }));
 
       final response = await http.put(
         Uri.parse('$baseUrl/accounts/user/'),
@@ -160,76 +145,17 @@ class AuthService {
         final user = User.fromJson(responseData);
         return user;
       } else {
-        print("_____________");
-        print(response.body);
         throw Exception('Failed to update user: ${response.body}');
       }
     } catch (e) {
-      print(e);
       throw Exception('Update failed: $e');
     }
   }
 
-  Future<Map<String, dynamic>> loginWithGoogle() async {
-    try {
-      final GoogleSignIn googleSignIn = GoogleSignIn(
-        serverClientId:
-            '1053937283361-oj94453evot45fidpcugr7nqssdc49v7.apps.googleusercontent.com',
-        clientId:
-            '1053937283361-oj94453evot45fidpcugr7nqssdc49v7.apps.googleusercontent.com',
-        hostedDomain: '',
-        scopes: ['email'],
-      );
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-
-      print("Google user here____________________________________");
-
-      if (googleUser == null) throw Exception('Google sign in cancelled');
-
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      print("Google here______________________________________");
-      print(googleAuth);
-      print(json.encode({
-        'access_token': googleAuth.accessToken,
-        'id_token': googleAuth.idToken,
-      }));
-
-      final response = await http.post(
-        Uri.parse('$baseUrl/accounts/google/'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'access_token': googleAuth.accessToken,
-          'id_token': googleAuth.idToken,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-
-        // Save token and user data
-        await saveToken(responseData['access']);
-        await saveUserData(responseData['user']);
-
-        return responseData;
-      } else {
-        print("Ezi_________________________________________________________");
-        print(response.body);
-        throw Exception('Failed to login with Google: ${response.body}');
-      }
-    } catch (e) {
-      print("_______________________________");
-      print('Google login failed: $e');
-      throw Exception('Google login failed: $e');
-    }
-  }
-
-  // Logout method
   Future<void> logout() async {
     try {
       final token = await getToken();
       if (token != null) {
-        // Optional: Call logout endpoint if your backend requires it
         await http.post(
           Uri.parse('$baseUrl/accounts/logout'),
           headers: {
@@ -239,23 +165,19 @@ class AuthService {
         );
       }
     } catch (e) {
-      print('Logout from server failed: $e');
+      throw const HttpException("Logout failed");
     } finally {
-      // Clear local storage regardless of server response
       await deleteToken();
       await deleteUserData();
-      await GoogleSignIn()
-          .signOut(); // Sign out from Google if using Google Sign In
+      await GoogleSignIn().signOut();
     }
   }
 
-  // Check if user is logged in
   Future<bool> isLoggedIn() async {
     final token = await getToken();
     return token != null;
   }
 
-  // Get authenticated http client
   Future<Map<String, String>> getAuthHeaders() async {
     final token = await getToken();
     return {

@@ -24,7 +24,7 @@ class _RequestTourState extends State<RequestTour> {
 
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
-  String _communicationPreference = 'Phone';
+  final String _communicationPreference = 'Phone';
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
@@ -39,17 +39,16 @@ class _RequestTourState extends State<RequestTour> {
 
   Future<void> _checkAuthentication() async {
     bool isLoggedIn = await _authService.isLoggedIn();
-    print(isLoggedIn);
     if (!isLoggedIn && mounted) {
       Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => LoginScreen(),
+            builder: (_) => const LoginScreen(),
           ));
     }
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectDate(context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now().add(const Duration(days: 1)),
@@ -60,7 +59,6 @@ class _RequestTourState extends State<RequestTour> {
       setState(() {
         _selectedDate = picked;
       });
-      // After selecting date, show time picker
       _selectTime(context);
     }
   }

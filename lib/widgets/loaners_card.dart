@@ -14,8 +14,6 @@ class LoanerCard extends StatefulWidget {
 }
 
 class _LoanerCardState extends State<LoanerCard> {
-  int _currentImageIndex = 0;
-
   Future<void> _launchPhoneDialer(String phoneNumber) async {
     final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
     if (await canLaunchUrl(phoneUri)) {
