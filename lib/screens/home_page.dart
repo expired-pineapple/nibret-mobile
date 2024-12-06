@@ -23,44 +23,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool _isLoading = false;
   bool _hasMoreData = true;
   String _searchQuery = '';
+  String _type = '';
   String? _error;
 
   late StreamSubscription? _subscription;
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-
-  List<Property> get filteredProperties {
-    return _properties.where((property) {
-      final price = property.price * 1000;
-      if (price < _priceRange.start || price > _priceRange.end) {
-        return false;
-      }
-      if (_selectedBedrooms != null &&
-          property.amenities.bedroom != _selectedBedrooms) {
-        return false;
-      }
-
-      if (_selectedBathrooms != null &&
-          property.amenities.bathroom != _selectedBathrooms) {
-        return false;
-      }
-
-      if (_selectedPropertyType != null &&
-          property.type.toLowerCase() != _selectedPropertyType!.toLowerCase()) {
-        return false;
-      }
-
-      if (_searchQuery.isNotEmpty &&
-          !property.name.toLowerCase().contains(_searchQuery.toLowerCase()) &&
-          !property.location.name
-              .toLowerCase()
-              .contains(_searchQuery.toLowerCase())) {
-        return false;
-      }
-
-      return true;
-    }).toList();
-  }
 
   final ApiService _apiService = ApiService();
   final List<Property> _properties = [];
@@ -85,14 +53,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    if (mounted) {
-      _loadProperties();
-      _scrollController.addListener(_scrollListener);
-      _tabController = TabController(
-        length: _categories.length,
-        vsync: this,
-        animationDuration: const Duration(milliseconds: 300),
-      );
+    _loadProperties(); // Initial load
+    _scrollController.addListener(_scrollListener);
+    _tabController = TabController(
+      length: _categories.length,
+      vsync: this,
+      animationDuration: const Duration(milliseconds: 300),
+    );
+
+    // Listen for tab changes
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        _onTabChanged(_tabController.index);
+      }
+    });
+  }
+
+  void _onTabChanged(int index) {
+    if (_categories[index] != "All") {
+      _type = _categories[index];
+    } else {
+      // Load all properties if "All" is selected
+      _refresh();
     }
   }
 
@@ -126,24 +108,31 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<void> _loadProperties() async {
     if (!mounted) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      final newItems = await _apiService.getProperties(
-        page: _currentPage,
+      int offset = _properties.length;
+
+      final response = await _apiService.getProperties(
+        offset: offset,
         searchQuery: _searchQuery,
+        type: _type,
       );
 
       setState(() {
-        if (newItems.isEmpty) {
+        if (response.isEmpty) {
           _hasMoreData = false;
         } else {
-          _properties.addAll(newItems);
-          _currentPage++;
+          _properties.addAll(response);
         }
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _error = "Opps, Something went wrong.";
+        _error = "Oops, Something went wrong.";
         _isLoading = false;
       });
     }
@@ -156,6 +145,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       _selectedBathrooms = null;
       _selectedPropertyType = null;
       _searchQuery = '';
+      _type = '';
       _searchController.clear();
     });
   }
@@ -523,7 +513,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       border: Border.all(color: Colors.white),
                     ),
                     child: TextField(
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(
+                          color: Colors.white), // Add this for white text
                       onChanged: (value) {
                         setState(() {
                           _searchQuery = value.trim();
@@ -555,9 +546,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           borderRadius: BorderRadius.circular(25),
                           borderSide: BorderSide.none,
                         ),
-                        fillColor:
-                            const Color.fromRGBO(0, 0, 0, 1).withOpacity(0.3),
-                        filled: true,
+                        fillColor: const Color.fromRGBO(0, 0, 0, 1)
+                            .withOpacity(0.3), // Add slight background
+                        filled: true, // Enable background fill
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 20),
                       ),
@@ -633,54 +624,61 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     }).toList(),
                   ),
                   Expanded(
-                    child: _isLoading
-                        ? ListView.builder(
-                            padding: const EdgeInsets.all(16),
-                            itemCount: 5,
-                            itemBuilder: (context, index) {
-                              return const PropertyCardSkeleton();
-                            },
-                          )
-                        : _error != null
-                            ? _buildErrorView()
-                            : RefreshIndicator(
-                                onRefresh: _refresh,
-                                child: ListView.builder(
-                                  controller: _scrollController,
-                                  padding: const EdgeInsets.all(16),
-                                  itemCount: _properties.length + 1,
-                                  itemBuilder: (context, index) {
-                                    if (index == _properties.length) {
-                                      if (_isLoading) {
-                                        return const Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.all(16.0),
-                                            child: CircularProgressIndicator(),
-                                          ),
-                                        );
-                                      }
-                                      if (!_hasMoreData) {
-                                        return const Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.all(16.0),
-                                            child:
-                                                Text('No Properties available'),
-                                          ),
-                                        );
-                                      }
-                                      return const SizedBox.shrink();
-                                    }
+                    child: _error != null
+                        ? _buildErrorView()
+                        : RefreshIndicator(
+                            onRefresh: _loadProperties,
+                            child: TabBarView(
+                              physics: const PageScrollPhysics(),
+                              controller: _tabController,
+                              children: _categories.map((category) {
+                                List<Property> filteredProperties = category ==
+                                        "All"
+                                    ? _properties
+                                    : _properties.where((property) {
+                                        return property.type.toLowerCase() ==
+                                            category.toLowerCase();
+                                      }).toList();
 
-                                    final item = _properties[index];
-                                    return Container(
-                                        margin:
-                                            const EdgeInsets.only(bottom: 16),
-                                        child: PropertyCard(
-                                          property: item,
-                                        ));
-                                  },
-                                ),
-                              ),
+                                return filteredProperties.isEmpty
+                                    ? const Center(
+                                        child: Text(
+                                            'No properties found in this category'),
+                                      )
+                                    : ListView.builder(
+                                        controller: _scrollController,
+                                        padding: const EdgeInsets.all(16),
+                                        itemCount: _properties.length + 1,
+                                        itemBuilder: (context, index) {
+                                          if (index == _properties.length) {
+                                            if (_isLoading) {
+                                              return const Center(
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(16.0),
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                ),
+                                              );
+                                            }
+                                            if (!_hasMoreData) {
+                                              return const Center(
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(16.0),
+                                                  child: Text(
+                                                      'No properties available'),
+                                                ),
+                                              );
+                                            }
+                                            return const SizedBox.shrink();
+                                          }
+
+                                          final item = _properties[index];
+                                          return PropertyCard(property: item);
+                                        },
+                                      );
+                              }).toList(),
+                            ),
+                          ),
                   )
                 ],
               ),

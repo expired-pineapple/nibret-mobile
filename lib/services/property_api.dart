@@ -12,13 +12,11 @@ class ApiService {
   final http.Client _client = http.Client();
   static const Duration timeoutDuration = Duration(seconds: 30);
 
-  Future<List<Property>> getProperties({
-    int? page,
-    String? searchQuery,
-  }) async {
+  Future<List<Property>> getProperties(
+      {int? offset, String? searchQuery, String? type}) async {
     try {
       final queryParameters = {
-        'page': page.toString(),
+        'offset': offset.toString(),
         'limit': itemsPerPage.toString(),
         if (searchQuery != null && searchQuery.isNotEmpty)
           'search': searchQuery,
