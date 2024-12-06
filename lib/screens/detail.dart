@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -63,10 +65,6 @@ class _PropertyDetailsState extends State<PropertyDetails>
         _isLoading = false;
       });
     }
-  }
-
-  Future<void> _handleRefresh() async {
-    return _loadProperties();
   }
 
   Widget _buildAmenityRow({required IconData icon, required String text}) {

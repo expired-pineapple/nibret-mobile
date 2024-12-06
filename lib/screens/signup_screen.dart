@@ -7,7 +7,7 @@ import 'package:nibret/screens/login_screen.dart';
 import 'package:http/http.dart' as http;
 
 class SignUpScreen extends StatefulWidget {
-  SignUpScreen({Key? key}) : super(key: key);
+  const SignUpScreen({super.key});
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -26,28 +26,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
   void signUpWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser!.authentication;
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
 
-      final response = await http.post(
-        Uri.parse('https://nibret-vercel-django.vercel.app/accounts/google/'),
-        headers: <String, String>{'Content-Type': 'application/json'},
-        body: jsonEncode({
-          "access_token": googleAuth.accessToken,
-          "id_token": googleAuth.idToken
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        print('User registered successfully');
-      } else {
-        print('Failed to register user: ${response.body}');
-      }
-    } catch (error) {
-      print('Error signing in with Google: $error');
-    }
+    await http.post(
+      Uri.parse('https://nibret-vercel-django.vercel.app/accounts/google/'),
+      headers: <String, String>{'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "access_token": googleAuth.accessToken,
+        "id_token": googleAuth.idToken
+      }),
+    );
   }
 
   Future<void> signUp() async {
@@ -78,8 +68,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
               backgroundColor: Colors.green.withOpacity(0.89),
               textColor: Colors.white,
               fontSize: 16.0);
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => LoginScreen()));
+          // ignore: use_build_context_synchronously
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const LoginScreen()));
         } else {
           Fluttertoast.showToast(
               msg: response.body,
@@ -89,7 +80,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               textColor: Colors.white,
               fontSize: 16.0);
         }
-      } on SocketException catch (e) {
+      } on SocketException {
         Fluttertoast.showToast(
             msg:
                 "Failed to connect to the server. Please check your internet connection.",
@@ -98,8 +89,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
             backgroundColor: Colors.red.withOpacity(0.89),
             textColor: Colors.white,
             fontSize: 16.0);
-      } catch (e) {
-        print("Error: $e");
       }
     }
   }
@@ -210,7 +199,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => LoginScreen(),
+                            builder: (_) => const LoginScreen(),
                           )),
                       child: const Text("Log in",
                           style: TextStyle(color: Color(0XFF163C9F))),

@@ -36,7 +36,7 @@ class ApiService {
       throw HttpException(e.message);
     } catch (e) {
       throw HttpException(
-          'Network error: Please check your internet connection. ${e}');
+          'Network error: Please check your internet connection. $e');
     }
   }
 
@@ -47,7 +47,6 @@ class ApiService {
           .timeout(timeoutDuration);
 
       if (response.statusCode == 200) {
-        print(response.body);
         final jsonData = json.decode(response.body);
 
         final property = Property.fromJson(jsonData);

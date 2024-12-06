@@ -19,6 +19,7 @@ class _AuctionDetailState extends State<AuctionDetail>
   int _currentImageIndex = 0;
   final ApiService _apiService = ApiService();
   Auction? _auction;
+  // ignore: unused_field
   GoogleMapController? _mapController;
   bool _isLoading = true;
   String? _error;
@@ -182,9 +183,7 @@ class _AuctionDetailState extends State<AuctionDetail>
                                   ? Colors.red
                                   : Colors.white,
                             ),
-                            onPressed: () {
-                              print("pressed");
-                            },
+                            onPressed: () {},
                           ),
                         ]),
                   ),

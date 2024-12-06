@@ -1,4 +1,4 @@
-# nibret
+# Nibret
 
 A new Flutter project.
 

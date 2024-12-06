@@ -173,7 +173,7 @@ class _WishlistPageState extends State<WishlistPage>
                   ),
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => SignUpScreen(),
+                      builder: (context) => const SignUpScreen(),
                     ));
                   },
                   child: const Text(

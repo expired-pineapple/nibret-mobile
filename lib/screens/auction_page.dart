@@ -18,10 +18,6 @@ class _AuctionPageState extends State<AuctionPage>
   bool _isLoading = true;
   String? _error;
   List<bool> wishlist = List.generate(10, (index) => false);
-  final RangeValues _priceRange = const RangeValues(0, 1000);
-  final bool _entirePlace = false;
-  final bool _privateRoom = false;
-  final bool _sharedRoom = false;
 
   @override
   void initState() {

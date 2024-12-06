@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:nibret/models/user_model.dart';
-import 'package:nibret/screens/home_page.dart';
 import 'package:nibret/screens/login_screen.dart';
 import 'package:nibret/services/auth_service.dart';
 import 'package:nibret/provider/auth_provider.dart';
@@ -41,16 +40,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     try {
       setState(() => _isLoading = true);
       final user = await _authService.getUser();
-      if (user == null) {
-        if (mounted) {
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const LoginScreen(),
-              ));
-        }
-        return;
-      }
       if (mounted) {
         setState(() {
           _user = user;
@@ -99,7 +88,6 @@ class _ProfileScreenState extends State<ProfileScreen>
         );
       }
     } catch (e) {
-      print(e);
       setState(() => _isSaving = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
