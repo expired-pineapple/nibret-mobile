@@ -15,41 +15,41 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
-  // Filter states
   RangeValues _priceRange = const RangeValues(0, 1000);
   int? _selectedBedrooms;
   int? _selectedBathrooms;
   String? _selectedPropertyType;
+  int _currentPage = 1;
+  bool _isLoading = false;
+  bool _hasMoreData = true;
   String _searchQuery = '';
+  String? _error;
+
   late StreamSubscription? _subscription;
   final TextEditingController _searchController = TextEditingController();
-  // Filtered properties getter
+  final ScrollController _scrollController = ScrollController();
+
   List<Property> get filteredProperties {
     return _properties.where((property) {
       final price = property.price * 1000;
       if (price < _priceRange.start || price > _priceRange.end) {
         return false;
       }
-
-      // Bedrooms filter
       if (_selectedBedrooms != null &&
           property.amenities.bedroom != _selectedBedrooms) {
         return false;
       }
 
-      // Bathrooms filter
       if (_selectedBathrooms != null &&
           property.amenities.bathroom != _selectedBathrooms) {
         return false;
       }
 
-      // Property type filter
       if (_selectedPropertyType != null &&
           property.type.toLowerCase() != _selectedPropertyType!.toLowerCase()) {
         return false;
       }
 
-      // Search query filter
       if (_searchQuery.isNotEmpty &&
           !property.name.toLowerCase().contains(_searchQuery.toLowerCase()) &&
           !property.location.name
@@ -63,9 +63,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   final ApiService _apiService = ApiService();
-  List<Property> _properties = [];
-  bool _isLoading = true;
-  String? _error;
+  final List<Property> _properties = [];
   List<bool> wishlist = List.generate(10, (index) => false);
 
   late TabController _tabController;
@@ -88,7 +86,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     if (mounted) {
-      _initializeData();
+      _loadProperties();
+      _scrollController.addListener(_scrollListener);
       _tabController = TabController(
         length: _categories.length,
         vsync: this,
@@ -97,39 +96,54 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
+  void _scrollListener() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      if (!_isLoading) {
+        _loadProperties();
+      }
+    }
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _properties.clear();
+      _currentPage = 1;
+      _hasMoreData = true;
+      _error = null;
+    });
+    await _loadProperties();
+  }
+
   @override
   void dispose() {
     _subscription?.cancel();
     _tabController.dispose();
     _apiService.dispose();
+    _scrollController.dispose();
     super.dispose();
-  }
-
-  Future<void> _initializeData() async {
-    _loadProperties();
   }
 
   Future<void> _loadProperties() async {
     if (!mounted) return;
-
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
     try {
-      final properties = await _apiService.getProperties();
-      if (!mounted) return;
+      final newItems = await _apiService.getProperties(
+        page: _currentPage,
+        searchQuery: _searchQuery,
+      );
 
       setState(() {
-        _properties = properties;
+        if (newItems.isEmpty) {
+          _hasMoreData = false;
+        } else {
+          _properties.addAll(newItems);
+          _currentPage++;
+        }
         _isLoading = false;
       });
     } catch (e) {
-      if (!mounted) return;
-
       setState(() {
-        _error = "Oops, Something went wrong.";
+        _error = "Opps, Something went wrong.";
         _isLoading = false;
       });
     }
@@ -445,9 +459,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                       ),
                       onPressed: () {
-                        setState(() {
-                          // Filters are already applied through state
-                        });
+                        setState(() {});
                         Navigator.pop(context);
                       },
                       child: const Text(
@@ -511,8 +523,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       border: Border.all(color: Colors.white),
                     ),
                     child: TextField(
-                      style: const TextStyle(
-                          color: Colors.white), // Add this for white text
+                      style: const TextStyle(color: Colors.white),
                       onChanged: (value) {
                         setState(() {
                           _searchQuery = value.trim();
@@ -544,9 +555,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           borderRadius: BorderRadius.circular(25),
                           borderSide: BorderSide.none,
                         ),
-                        fillColor: const Color.fromRGBO(0, 0, 0, 1)
-                            .withOpacity(0.3), // Add slight background
-                        filled: true, // Enable background fill
+                        fillColor:
+                            const Color.fromRGBO(0, 0, 0, 1).withOpacity(0.3),
+                        filled: true,
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 20),
                       ),
@@ -633,39 +644,41 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         : _error != null
                             ? _buildErrorView()
                             : RefreshIndicator(
-                                onRefresh: _loadProperties,
-                                child: TabBarView(
-                                  physics: const PageScrollPhysics(),
-                                  controller: _tabController,
-                                  children: _categories.map((category) {
-                                    // Filter properties based on category
-                                    List<Property> filteredProperties =
-                                        category == "All"
-                                            ? _properties
-                                            : _properties.where((property) {
-                                                return property.type
-                                                        .toLowerCase() ==
-                                                    category.toLowerCase();
-                                              }).toList();
+                                onRefresh: _refresh,
+                                child: ListView.builder(
+                                  controller: _scrollController,
+                                  padding: const EdgeInsets.all(16),
+                                  itemCount: _properties.length + 1,
+                                  itemBuilder: (context, index) {
+                                    if (index == _properties.length) {
+                                      if (_isLoading) {
+                                        return const Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.all(16.0),
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                        );
+                                      }
+                                      if (!_hasMoreData) {
+                                        return const Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.all(16.0),
+                                            child:
+                                                Text('No Properties available'),
+                                          ),
+                                        );
+                                      }
+                                      return const SizedBox.shrink();
+                                    }
 
-                                    return filteredProperties.isEmpty
-                                        ? const Center(
-                                            child: Text(
-                                                'No properties found in this category'),
-                                          )
-                                        : ListView.builder(
-                                            padding: const EdgeInsets.all(16),
-                                            itemCount:
-                                                filteredProperties.length,
-                                            itemBuilder: (context, index) {
-                                              final property =
-                                                  filteredProperties[index];
-                                              return PropertyCard(
-                                                property: property,
-                                              );
-                                            },
-                                          );
-                                  }).toList(),
+                                    final item = _properties[index];
+                                    return Container(
+                                        margin:
+                                            const EdgeInsets.only(bottom: 16),
+                                        child: PropertyCard(
+                                          property: item,
+                                        ));
+                                  },
                                 ),
                               ),
                   )

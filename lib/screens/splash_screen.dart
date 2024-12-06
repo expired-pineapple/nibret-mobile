@@ -21,7 +21,6 @@ class _SplashScreenState extends State<SplashScreen> {
       () {
         if (mounted) {
           Navigator.of(context).pushReplacement(
-            // Use pushReplacement instead of push
             MaterialPageRoute(
               builder: (context) => const MainScreen(),
             ),

@@ -152,7 +152,6 @@ class _MapScreenState extends State<MapScreen> {
             width: size.width * 0.85,
             offset: 50,
           ),
-          // Back button
           Positioned(
             top: MediaQuery.of(context).padding.top + 10,
             left: 16,

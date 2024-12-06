@@ -92,7 +92,6 @@ class Location {
   }
 }
 
-
 class Pictures {
   final String id;
   final String property;
@@ -176,8 +175,7 @@ class Property {
   final double discount;
   final bool soldOut;
   final String type;
-  final DateTime moveInDate;
-  final List<LoanerResponse> loaners;
+  final List<LoanerResponse>? loaners;
   bool isWishListed;
 
   Property(
@@ -191,8 +189,7 @@ class Property {
       required this.discount,
       required this.soldOut,
       required this.type,
-      required this.moveInDate,
-      required this.loaners,
+      this.loaners,
       this.isWishListed = false});
 
   factory Property.fromJson(Map<String, dynamic> json) {
@@ -202,8 +199,7 @@ class Property {
       pictures: (json['pictures'] as List<dynamic>)
           .map((pictureJson) => Pictures.fromJson(pictureJson))
           .toList(),
-      amenities: Amenities.fromJson(
-          json['amenties']), 
+      amenities: Amenities.fromJson(json['amenties']),
       name: json['name'],
       description: json['description'],
       price: json['price'],
@@ -213,7 +209,6 @@ class Property {
       loaners: (json['loaner_detail'] as List<dynamic>)
           .map((loaners) => LoanerResponse.fromJson(loaners))
           .toList(),
-      moveInDate: DateTime.parse(json['move_in_date']),
     );
   }
 

@@ -7,20 +7,31 @@ import '../models/property.dart';
 
 class ApiService {
   static const String baseUrl = 'https://nibret-vercel-django.vercel.app';
+  static const int itemsPerPage = 10;
 
-  // Create a custom http client with timeout
   final http.Client _client = http.Client();
   static const Duration timeoutDuration = Duration(seconds: 30);
 
-  Future<List<Property>> getProperties() async {
+  Future<List<Property>> getProperties({
+    int? page,
+    String? searchQuery,
+  }) async {
     try {
+      final queryParameters = {
+        'page': page.toString(),
+        'limit': itemsPerPage.toString(),
+        if (searchQuery != null && searchQuery.isNotEmpty)
+          'search': searchQuery,
+      };
       final response = await _client
-          .get(Uri.parse('$baseUrl/properties'))
+          .get(Uri.parse('$baseUrl/properties').replace(
+            queryParameters: queryParameters,
+          ))
           .timeout(timeoutDuration);
 
       if (response.statusCode == 200) {
-
         final Map<String, dynamic> data = json.decode(response.body);
+        print(response.body);
         final List<dynamic> jsonList = data['results'];
         return jsonList.map((json) => Property.fromJson(json)).toList();
       } else {

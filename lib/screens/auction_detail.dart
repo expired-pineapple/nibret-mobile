@@ -28,7 +28,7 @@ class _AuctionDetailState extends State<AuctionDetail>
   @override
   void initState() {
     super.initState();
-    _initializeData(); // Initialize data when widget is created
+    _initializeData();
   }
 
   Future<void> _initializeData() async {
@@ -137,7 +137,6 @@ class _AuctionDetailState extends State<AuctionDetail>
                     );
                   },
                 ),
-                // Indicators
                 Positioned(
                   bottom: 16,
                   left: 0,
@@ -159,7 +158,6 @@ class _AuctionDetailState extends State<AuctionDetail>
                     }).toList(),
                   ),
                 ),
-                // Wishlist button
                 Positioned(
                   top: 20,
                   left: 0,

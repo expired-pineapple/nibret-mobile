@@ -141,18 +141,13 @@ class _PropertyCardState extends State<PropertyCard> {
                           setState(() {
                             _isLoading = true;
                           });
-                          try {
-                            _checkAuthentication(context);
-                            await _wishListsApiService.toggleWishlist(
-                                widget.property.id,
-                                !widget.property.isWishListed);
-                          } catch (e) {
-                            // Handle error (optional)
-                          } finally {
-                            setState(() {
-                              _isLoading = false;
-                            });
-                          }
+                          _checkAuthentication(context);
+                          await _wishListsApiService.toggleWishlist(
+                              widget.property.id,
+                              !widget.property.isWishListed);
+                          setState(() {
+                            _isLoading = false;
+                          });
                         },
                 ),
               ),

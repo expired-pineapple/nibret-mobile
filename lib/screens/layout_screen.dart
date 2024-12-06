@@ -97,20 +97,15 @@ class _MainScreenState extends State<MainScreen> {
               Provider.of<AuthProvider>(context, listen: false);
 
           if (index == 4 && !authProvider.isAuthenticated) {
-            // Navigate to login screen while preserving the desired tab index
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const LoginScreen(),
               ),
             ).then((value) {
-              // After login, if successful, the user will be redirected back here
-              // The controller will maintain the selected index
               if (authProvider.isAuthenticated) {
-                _controller.index = 4; // Set to profile tab
-              } else {
-                _controller.index =
-                    0; // Reset to home tab if login was cancelled
+                _controller.index = 4;
+                _controller.index = 0;
               }
             });
           }
