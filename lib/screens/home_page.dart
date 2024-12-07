@@ -19,49 +19,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   int? _selectedBedrooms;
   int? _selectedBathrooms;
   String? _selectedPropertyType;
-  int _currentPage = 1;
   bool _isLoading = false;
   bool _hasMoreData = true;
   String _searchQuery = '';
   String? _error;
+  String? _next;
 
-  late StreamSubscription? _subscription;
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-
-  List<Property> get filteredProperties {
-    return _properties.where((property) {
-      final price = property.price * 1000;
-      if (price < _priceRange.start || price > _priceRange.end) {
-        return false;
-      }
-      if (_selectedBedrooms != null &&
-          property.amenities.bedroom != _selectedBedrooms) {
-        return false;
-      }
-
-      if (_selectedBathrooms != null &&
-          property.amenities.bathroom != _selectedBathrooms) {
-        return false;
-      }
-
-      if (_selectedPropertyType != null &&
-          property.type.toLowerCase() != _selectedPropertyType!.toLowerCase()) {
-        return false;
-      }
-
-      if (_searchQuery.isNotEmpty &&
-          !property.name.toLowerCase().contains(_searchQuery.toLowerCase()) &&
-          !property.location.name
-              .toLowerCase()
-              .contains(_searchQuery.toLowerCase())) {
-        return false;
-      }
-
-      return true;
-    }).toList();
-  }
-
   final ApiService _apiService = ApiService();
   final List<Property> _properties = [];
   List<bool> wishlist = List.generate(10, (index) => false);
@@ -108,16 +73,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<void> _refresh() async {
     setState(() {
       _properties.clear();
-      _currentPage = 1;
       _hasMoreData = true;
       _error = null;
+      _next = null; // Reset next URL on refresh
     });
     await _loadProperties();
   }
 
   @override
   void dispose() {
-    _subscription?.cancel();
     _tabController.dispose();
     _apiService.dispose();
     _scrollController.dispose();
@@ -125,25 +89,34 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future<void> _loadProperties() async {
-    if (!mounted) return;
+    if (!mounted || _isLoading || (!_hasMoreData && _next != null)) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      final newItems = await _apiService.getProperties(
-        page: _currentPage,
+      final data = await _apiService.getProperties(
+        next: _next,
         searchQuery: _searchQuery,
       );
+
+      final List<dynamic> jsonList = data['results'];
+      final newItems = jsonList.map((json) => Property.fromJson(json)).toList();
 
       setState(() {
         if (newItems.isEmpty) {
           _hasMoreData = false;
         } else {
           _properties.addAll(newItems);
-          _currentPage++;
+          _next = data['next'];
+          _hasMoreData = data['next'] != null;
         }
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _error = "Opps, Something went wrong.";
+        _error = e.toString();
         _isLoading = false;
       });
     }
@@ -633,54 +606,44 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     }).toList(),
                   ),
                   Expanded(
-                    child: _isLoading
-                        ? ListView.builder(
-                            padding: const EdgeInsets.all(16),
-                            itemCount: 5,
-                            itemBuilder: (context, index) {
-                              return const PropertyCardSkeleton();
-                            },
-                          )
-                        : _error != null
-                            ? _buildErrorView()
-                            : RefreshIndicator(
-                                onRefresh: _refresh,
-                                child: ListView.builder(
-                                  controller: _scrollController,
-                                  padding: const EdgeInsets.all(16),
-                                  itemCount: _properties.length + 1,
-                                  itemBuilder: (context, index) {
-                                    if (index == _properties.length) {
-                                      if (_isLoading) {
-                                        return const Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.all(16.0),
-                                            child: CircularProgressIndicator(),
-                                          ),
-                                        );
-                                      }
-                                      if (!_hasMoreData) {
-                                        return const Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.all(16.0),
-                                            child:
-                                                Text('No Properties available'),
-                                          ),
-                                        );
-                                      }
-                                      return const SizedBox.shrink();
-                                    }
+                    child: _error != null
+                        ? _buildErrorView()
+                        : RefreshIndicator(
+                            onRefresh: _refresh,
+                            child: ListView.builder(
+                              controller: _scrollController,
+                              padding: const EdgeInsets.all(16),
+                              itemCount: _properties.length + 1,
+                              itemBuilder: (context, index) {
+                                if (index == _properties.length) {
+                                  if (_isLoading) {
+                                    return const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(16.0),
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    );
+                                  }
+                                  if (!_hasMoreData) {
+                                    return const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(16.0),
+                                        child: Text('No Properties available'),
+                                      ),
+                                    );
+                                  }
+                                  return const SizedBox.shrink();
+                                }
 
-                                    final item = _properties[index];
-                                    return Container(
-                                        margin:
-                                            const EdgeInsets.only(bottom: 16),
-                                        child: PropertyCard(
-                                          property: item,
-                                        ));
-                                  },
-                                ),
-                              ),
+                                final item = _properties[index];
+                                return Container(
+                                    margin: const EdgeInsets.only(bottom: 16),
+                                    child: PropertyCard(
+                                      property: item,
+                                    ));
+                              },
+                            ),
+                          ),
                   )
                 ],
               ),

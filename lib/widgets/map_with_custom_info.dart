@@ -92,12 +92,15 @@ class _MapScreenState extends State<MapScreen> {
     });
 
     try {
-      final properties = await _apiService.getProperties();
+      final data = await _apiService.getProperties();
+
+      final List<dynamic> jsonList = data['results'];
+      final newItems = jsonList.map((json) => Property.fromJson(json)).toList();
 
       if (!mounted) return;
 
       setState(() {
-        listOfPlace = properties;
+        listOfPlace = newItems;
         _isLoading = false;
       });
     } catch (e) {
