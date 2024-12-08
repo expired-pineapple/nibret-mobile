@@ -19,7 +19,6 @@ class ApiService {
           .timeout(timeoutDuration);
 
       if (response.statusCode == 200) {
-
         final Map<String, dynamic> data = json.decode(response.body);
         final List<dynamic> jsonList = data['results'];
         return jsonList.map((json) => Property.fromJson(json)).toList();

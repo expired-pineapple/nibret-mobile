@@ -11,7 +11,7 @@ class PropertyFilters extends StatelessWidget {
   final Function(String?) onPropertyTypeChanged;
 
   const PropertyFilters({
-    Key? key,
+    super.key,
     required this.priceRange,
     required this.onPriceRangeChanged,
     this.selectedBedrooms,
@@ -20,7 +20,7 @@ class PropertyFilters extends StatelessWidget {
     required this.onBathroomsChanged,
     this.selectedPropertyType,
     required this.onPropertyTypeChanged,
-  }) : super(key: key);
+  });
 
   Widget _buildNumberButton(
       String label, bool isSelected, VoidCallback onPressed) {

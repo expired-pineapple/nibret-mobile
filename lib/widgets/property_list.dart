@@ -11,12 +11,12 @@ class PropertiesList extends StatelessWidget {
   final Future<void> Function() onRefresh;
 
   const PropertiesList({
-    Key? key,
+    super.key,
     required this.properties,
     required this.isLoading,
     this.error,
     required this.onRefresh,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
