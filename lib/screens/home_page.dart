@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:nibret/widgets/map_with_custom_info.dart';
@@ -6,6 +7,7 @@ import 'package:nibret/widgets/property_skeleton.dart';
 import '../services/property_api.dart';
 import '../models/property.dart';
 import '../widgets/property_card.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -32,6 +34,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   List<bool> wishlist = List.generate(10, (index) => false);
 
   late TabController _tabController;
+  List<String> _selectedCategories = [];
   final List<String> _categories = [
     "All",
     "Luxury Apartments",
@@ -75,7 +78,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       _properties.clear();
       _hasMoreData = true;
       _error = null;
-      _next = null; // Reset next URL on refresh
+      _next = null; 
     });
     await _loadProperties();
   }
@@ -130,7 +133,103 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       _selectedPropertyType = null;
       _searchQuery = '';
       _searchController.clear();
+      _selectedCategories = [];
     });
+  }
+
+  void _toggleSelection(String category) {
+    setState(() {
+      if (_selectedCategories.contains(category)) {
+        _selectedCategories.remove(category);
+      } else {
+        _selectedCategories.add(category);
+      }
+    });
+  }
+
+  void _showMultiSelectDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Select Categories"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: _categories.map((category) {
+                return StatefulBuilder(
+                  builder: (BuildContext context, StateSetter setState) {
+                    return CheckboxListTile(
+                      title: Text(category),
+                      value: _selectedCategories.contains(category),
+                      onChanged: (bool? isChecked) {
+                        if (isChecked != null) {
+                          _toggleSelection(category);
+                          setState(
+                              () {}); // Update the checkbox state immediately
+                        }
+                      },
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text("Done"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _sendFilterRequest() async {
+    // Construct the JSON body
+    Map<String, dynamic> requestBody = {
+      'type': _selectedCategories.map((category) => category.trim()).toList(),
+      'min_price': _priceRange.start,
+      'max_price': _priceRange.end * 1000,
+      'bathroom': _selectedBathrooms,
+      'bedroom': _selectedBedrooms,
+    };
+
+    // Set headers
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'User-Agent': 'insomnia/10.1.1',
+    };
+
+    // Send the request
+    final response = await http.post(
+      Uri.parse('https://nibret-vercel-django.vercel.app/properties/search/'),
+      headers: headers,
+      body: json.encode(requestBody),
+    );
+
+    // Handle the response
+    if (response.statusCode == 200) {
+      // Parse the response body
+      final data = json.decode(response.body);
+      print("RESPONSEEEE" + response.body);
+      setState(() {
+        // Update _properties with filtered results
+        _properties = (data as List)
+            .map((property) => Property.fromJson(property))
+            .toList();
+      });
+    } else {
+      // Handle error response
+      setState(() {
+        _error = 'Failed to load properties: ${response.statusCode}';
+        _properties = [];
+        _loadProperties();
+      });
+    }
   }
 
   void _showFilterBottomSheet() {
@@ -182,88 +281,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            side: BorderSide(
-                              color: _selectedPropertyType ==
-                                      "Luxury Apartments"
-                                  ? Colors.blue[900]!
-                                  : const Color.fromARGB(255, 153, 152, 152),
-                              width: 2.0,
-                            ),
-                          ),
-                          elevation: 0,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                _selectedPropertyType = "Luxury Apartments";
-                              });
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.all(18.0),
-                              child: Column(
-                                children: [
-                                  Icon(Icons.apartment_outlined),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    "Luxury Apartments",
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                  GestureDetector(
+                    onTap: () => _showMultiSelectDialog(context),
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(4),
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            side: BorderSide(
-                              color: _selectedPropertyType == "Villa"
-                                  ? Colors.blue[900]!
-                                  : const Color.fromARGB(255, 153, 152, 152),
-                              width: 2.0,
-                            ),
-                          ),
-                          elevation: 0,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                _selectedPropertyType = "Villa";
-                              });
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.all(18.0),
-                              child: Column(
-                                children: [
-                                  Icon(Icons.home_work_outlined),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    "Villa",
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                      child: Text(
+                        _selectedCategories.isNotEmpty
+                            ? _selectedCategories.join(', ')
+                            : 'Select categories',
+                        style: TextStyle(color: Colors.black),
                       ),
-                    ],
+                    ),
                   ),
                   const SizedBox(height: 20),
                   const Text(
@@ -432,7 +465,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                       ),
                       onPressed: () {
-                        setState(() {});
+                        _sendFilterRequest();
+                        setState(() {
+                          // Filters are already applied through state
+                        });
                         Navigator.pop(context);
                       },
                       child: const Text(
@@ -478,6 +514,48 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  Future<void> _fetchProperties(String query) async {
+    if (query.isEmpty) {
+      _properties = [];
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final url =
+        'https://nibret-vercel-django.vercel.app/properties?search=${Uri.encodeComponent(query)}';
+
+    try {
+      final response = await http.get(Uri.parse(url), headers: {
+        'Content-Type': 'application/json',
+      });
+
+      if (response.statusCode == 200) {
+        // Parse the response body
+        final data = json.decode(response.body);
+        setState(() {
+          _properties = (data['results'] as List)
+              .map((property) => Property.fromJson(property))
+              .toList();
+        });
+      } else {
+        setState(() {
+          _error = 'Failed to load properties';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Error: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -490,51 +568,54 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             child: Column(
               children: [
                 Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.33),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.white),
-                    ),
-                    child: TextField(
-                      style: const TextStyle(color: Colors.white),
-                      onChanged: (value) {
-                        setState(() {
-                          _searchQuery = value.trim();
-                        });
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Search destinations',
-                        hintStyle:
-                            TextStyle(color: Colors.white.withOpacity(0.5)),
-                        prefixIcon: const Icon(
-                          Icons.search,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.33),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: TextField(
+                    style: const TextStyle(
+                        color: Colors.white), // Add this for white text
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value.trim();
+                        _fetchProperties(_searchQuery);
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Search destinations',
+                      hintStyle:
+                          TextStyle(color: Colors.white.withOpacity(0.5)),
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: Colors.white,
+                      ),
+                      suffixIcon: IconButton.outlined(
+                        icon: const Icon(
+                          Icons.tune,
+
                           color: Colors.white,
                         ),
-                        suffixIcon: IconButton.outlined(
-                          icon: const Icon(
-                            Icons.tune,
-                            color: Colors.white,
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.white.withOpacity(0)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          style: OutlinedButton.styleFrom(
-                            side:
-                                BorderSide(color: Colors.white.withOpacity(0)),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                          onPressed: _showFilterBottomSheet,
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: BorderSide.none,
-                        ),
-                        fillColor:
-                            const Color.fromRGBO(0, 0, 0, 1).withOpacity(0.3),
-                        filled: true,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 20),
+                        onPressed: _showFilterBottomSheet,
                       ),
-                    ))
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      fillColor: const Color.fromRGBO(0, 0, 0, 1)
+                          .withOpacity(0.3), // Add slight background
+                      filled: true, // Enable background fill
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 20),
+                    ),
+                  ),
+                )
               ],
             ),
           ),
@@ -606,45 +687,50 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     }).toList(),
                   ),
                   Expanded(
-                    child: _error != null
-                        ? _buildErrorView()
-                        : RefreshIndicator(
-                            onRefresh: _refresh,
-                            child: ListView.builder(
-                              controller: _scrollController,
-                              padding: const EdgeInsets.all(16),
-                              itemCount: _properties.length + 1,
-                              itemBuilder: (context, index) {
-                                if (index == _properties.length) {
-                                  if (_isLoading) {
-                                    return const Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.all(16.0),
-                                        child: CircularProgressIndicator(),
-                                      ),
-                                    );
-                                  }
-                                  if (!_hasMoreData) {
-                                    return const Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.all(16.0),
-                                        child: Text('No Properties available'),
-                                      ),
-                                    );
-                                  }
-                                  return const SizedBox.shrink();
-                                }
+                    child: _isLoading
+                        ? ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: 5,
+                            itemBuilder: (context, index) {
+                              return const PropertyCardSkeleton();
+                            },
+                          )
+                        : _error != null
+                            ? _buildErrorView()
+                            : RefreshIndicator(
+                                onRefresh: _loadProperties,
+                                child: TabBarView(
+                                  physics: const PageScrollPhysics(),
+                                  controller: _tabController,
+                                  children: _categories.map((category) {
+                                    List<Property> filteredProperties =
+                                        category == "All"
+                                            ? _properties
+                                            : _properties.where((property) {
+                                                return property.type
+                                                        .toLowerCase() ==
+                                                    category.toLowerCase();
+                                              }).toList();
 
-                                final item = _properties[index];
-                                return Container(
-                                    margin: const EdgeInsets.only(bottom: 16),
-                                    child: PropertyCard(
-                                      property: item,
-                                    ));
-                              },
-                            ),
-                          ),
-                  )
+                                    return filteredProperties.isEmpty
+                                        ? const Center(
+                                            child: Text(
+                                                'No properties found in this category'))
+                                        : ListView.builder(
+                                            padding: const EdgeInsets.all(16),
+                                            itemCount:
+                                                filteredProperties.length,
+                                            itemBuilder: (context, index) {
+                                              final property =
+                                                  filteredProperties[index];
+                                              return PropertyCard(
+                                                  property: property);
+                                            },
+                                          );
+                                  }).toList(),
+                                ),
+                              ),
+                  ),
                 ],
               ),
             ),
