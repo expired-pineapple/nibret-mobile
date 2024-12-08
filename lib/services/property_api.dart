@@ -12,8 +12,8 @@ class ApiService {
   final http.Client _client = http.Client();
   static const Duration timeoutDuration = Duration(seconds: 30);
 
-  Future<List<Property>> getProperties(
-      {int? offset, String? searchQuery, String? type}) async {
+  Future<Map<String, dynamic>> getProperties(
+      {int? offset, String? searchQuery, String? type, String? next}) async {
     try {
       final queryParameters = {
         'offset': offset.toString(),
@@ -29,9 +29,7 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-        print(response.body);
-        final List<dynamic> jsonList = data['results'];
-        return jsonList.map((json) => Property.fromJson(json)).toList();
+        return data;
       } else {
         throw HttpException(
             'Failed to load properties. Status: ${response.statusCode}');
