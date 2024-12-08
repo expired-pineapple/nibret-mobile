@@ -189,8 +189,6 @@ class _PropertyDetailsState extends State<PropertyDetails>
                                     await _wishListsApiService.toggleWishlist(
                                         _property!.id,
                                         _property?.isWishListed ?? false);
-                                  } catch (e) {
-                                    // Handle error (optional)
                                   } finally {
                                     setState(() {
                                       _isLoading = false;
@@ -371,33 +369,40 @@ class _PropertyDetailsState extends State<PropertyDetails>
                       ),
                     ),
                   ),
-                  const Text(
-                    "Available Loaners",
-                    style: TextStyle(
-                      color: Color(0xFF252525),
-                      fontSize: 24,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(
-                    height: _property!.loaners.isEmpty
-                        ? 0
-                        : 400, // Adjust height as needed
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const ClampingScrollPhysics(),
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _property!.loaners.length,
-                      itemBuilder: (context, index) {
-                        final property = _property!.loaners[index];
-                        return LoanerCard(
-                          loaner: property,
-                        );
-                      },
-                    ),
-                  ),
-                  SizedBox(height: MediaQuery.of(context).padding.bottom + 24)
+                  if (_property?.loaners != null)
+                    Column(
+                      children: [
+                        const Text(
+                          "Available Loaners",
+                          style: TextStyle(
+                            color: Color(0xFF252525),
+                            fontSize: 24,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(
+                          height: _property!.loaners != null ? 0 : 400,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: const ClampingScrollPhysics(),
+                            padding: const EdgeInsets.all(16),
+                            itemCount: _property!.loaners?.length,
+                            itemBuilder: (context, index) {
+                              final property = _property!.loaners?[index];
+                              if (property != null) {
+                                return LoanerCard(
+                                  loaner: property,
+                                );
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    const SizedBox(height: 16)
                 ],
               ),
             ),

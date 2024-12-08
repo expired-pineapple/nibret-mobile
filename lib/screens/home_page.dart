@@ -17,57 +17,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
-  // Filter states
   RangeValues _priceRange = const RangeValues(0, 1000);
   int? _selectedBedrooms;
   int? _selectedBathrooms;
   String? _selectedPropertyType;
+  bool _isLoading = false;
+  bool _hasMoreData = true;
   String _searchQuery = '';
-  late StreamSubscription? _subscription;
-  final TextEditingController _searchController = TextEditingController();
-  // Filtered properties getter
-  List<Property> get filteredProperties {
-    return _properties.where((property) {
-      final price = property.price * 1000;
-      if (price < _priceRange.start || price > _priceRange.end) {
-        return false;
-      }
-
-      // Bedrooms filter
-      if (_selectedBedrooms != null &&
-          property.amenities.bedroom != _selectedBedrooms) {
-        return false;
-      }
-
-      // Bathrooms filter
-      if (_selectedBathrooms != null &&
-          property.amenities.bathroom != _selectedBathrooms) {
-        return false;
-      }
-
-      // Property type filter
-      if (_selectedPropertyType != null &&
-          property.type.toLowerCase() != _selectedPropertyType!.toLowerCase()) {
-        return false;
-      }
-
-      // Search query filter
-      if (_searchQuery.isNotEmpty &&
-          !property.name.toLowerCase().contains(_searchQuery.toLowerCase()) &&
-          !property.location.name
-              .toLowerCase()
-              .contains(_searchQuery.toLowerCase())) {
-        return false;
-      }
-
-      return true;
-    }).toList();
-  }
-
-  final ApiService _apiService = ApiService();
-  List<Property> _properties = [];
-  bool _isLoading = true;
   String? _error;
+  String? _next;
+
+  final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final ApiService _apiService = ApiService();
+  final List<Property> _properties = [];
   List<bool> wishlist = List.generate(10, (index) => false);
 
   late TabController _tabController;
@@ -91,7 +54,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     if (mounted) {
-      _initializeData();
+      _loadProperties();
+      _scrollController.addListener(_scrollListener);
       _tabController = TabController(
         length: _categories.length,
         vsync: this,
@@ -100,39 +64,62 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
+  void _scrollListener() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      if (!_isLoading) {
+        _loadProperties();
+      }
+    }
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _properties.clear();
+      _hasMoreData = true;
+      _error = null;
+      _next = null; 
+    });
+    await _loadProperties();
+  }
+
   @override
   void dispose() {
-    _subscription?.cancel();
     _tabController.dispose();
     _apiService.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  Future<void> _initializeData() async {
-    _loadProperties();
-  }
-
   Future<void> _loadProperties() async {
-    if (!mounted) return;
+    if (!mounted || _isLoading || (!_hasMoreData && _next != null)) return;
 
     setState(() {
       _isLoading = true;
-      _error = null;
     });
 
     try {
-      final properties = await _apiService.getProperties();
-      if (!mounted) return;
+      final data = await _apiService.getProperties(
+        next: _next,
+        searchQuery: _searchQuery,
+      );
+
+      final List<dynamic> jsonList = data['results'];
+      final newItems = jsonList.map((json) => Property.fromJson(json)).toList();
 
       setState(() {
-        _properties = properties;
+        if (newItems.isEmpty) {
+          _hasMoreData = false;
+        } else {
+          _properties.addAll(newItems);
+          _next = data['next'];
+          _hasMoreData = data['next'] != null;
+        }
         _isLoading = false;
       });
     } catch (e) {
-      if (!mounted) return;
-
       setState(() {
-        _error = "Oops, Something went wrong.";
+        _error = e.toString();
         _isLoading = false;
       });
     }
@@ -294,90 +281,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //   children: [
-                  //     Expanded(
-                  //       child: Card(
-                  //         shape: RoundedRectangleBorder(
-                  //           borderRadius: BorderRadius.circular(12.0),
-                  //           side: BorderSide(
-                  //             color: _selectedPropertyType ==
-                  //                     "Luxury Apartments"
-                  //                 ? Colors.blue[900]!
-                  //                 : const Color.fromARGB(255, 153, 152, 152),
-                  //             width: 2.0,
-                  //           ),
-                  //         ),
-                  //         elevation: 0,
-                  //         child: InkWell(
-                  //           onTap: () {
-                  //             setState(() {
-                  //               _selectedPropertyType = "Luxury Apartments";
-                  //             });
-                  //           },
-                  //           child: const Padding(
-                  //             padding: EdgeInsets.all(18.0),
-                  //             child: Column(
-                  //               children: [
-                  //                 Icon(Icons.apartment_outlined),
-                  //                 SizedBox(height: 10),
-                  //                 Text(
-                  //                   "Luxury Apartments",
-                  //                   textAlign: TextAlign.left,
-                  //                   style: TextStyle(
-                  //                     fontSize: 14,
-                  //                     fontWeight: FontWeight.bold,
-                  //                   ),
-                  //                 )
-                  //               ],
-                  //             ),
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //     const SizedBox(width: 10),
-                  //     Expanded(
-                  //       child: Card(
-                  //         shape: RoundedRectangleBorder(
-                  //           borderRadius: BorderRadius.circular(12.0),
-                  //           side: BorderSide(
-                  //             color: _selectedPropertyType == "Villa"
-                  //                 ? Colors.blue[900]!
-                  //                 : const Color.fromARGB(255, 153, 152, 152),
-                  //             width: 2.0,
-                  //           ),
-                  //         ),
-                  //         elevation: 0,
-                  //         child: InkWell(
-                  //           onTap: () {
-                  //             setState(() {
-                  //               _selectedPropertyType = "Villa";
-                  //             });
-                  //           },
-                  //           child: const Padding(
-                  //             padding: EdgeInsets.all(18.0),
-                  //             child: Column(
-                  //               children: [
-                  //                 Icon(Icons.home_work_outlined),
-                  //                 SizedBox(height: 10),
-                  //                 Text(
-                  //                   "Villa",
-                  //                   textAlign: TextAlign.left,
-                  //                   style: TextStyle(
-                  //                     fontSize: 14,
-                  //                     fontWeight: FontWeight.bold,
-                  //                   ),
-                  //                 )
-                  //               ],
-                  //             ),
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-
                   GestureDetector(
                     onTap: () => _showMultiSelectDialog(context),
                     child: Container(
@@ -613,13 +516,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<void> _fetchProperties(String query) async {
     if (query.isEmpty) {
-      // Optionally, reset properties if the search is empty
       _properties = [];
       return;
     }
 
     setState(() {
-      _isLoading = true; // Show loading indicator
+      _isLoading = true;
     });
 
     final url =
@@ -628,7 +530,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     try {
       final response = await http.get(Uri.parse(url), headers: {
         'Content-Type': 'application/json',
-        // Add other headers if necessary, like cookies
       });
 
       if (response.statusCode == 200) {
@@ -640,7 +541,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               .toList();
         });
       } else {
-        // Handle error response
         setState(() {
           _error = 'Failed to load properties';
         });
@@ -651,7 +551,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       });
     } finally {
       setState(() {
-        _isLoading = false; // Hide loading indicator
+        _isLoading = false;
       });
     }
   }
@@ -693,6 +593,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       suffixIcon: IconButton.outlined(
                         icon: const Icon(
                           Icons.tune,
+
                           color: Colors.white,
                         ),
                         style: OutlinedButton.styleFrom(

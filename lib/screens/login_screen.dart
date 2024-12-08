@@ -44,7 +44,6 @@ class _LoginScreenState extends State<LoginScreen> {
       } catch (e) {
         String errorMessage = "Login failed";
 
-        // Parse error response
         if (e is Map<String, dynamic>) {
           if (e.containsKey('non_field_errors')) {
             errorMessage = e['non_field_errors'][0];
@@ -85,7 +84,6 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 70),
-                // Logo and brand name
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
