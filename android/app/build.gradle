@@ -29,16 +29,16 @@ android {
     
     signingConfigs {
         debug {
-            keyAlias 'upload'
-            keyPassword 'nibret'
-            storeFile file('upload-keystore.jks')
-            storePassword 'nibret'
+            // keyAlias 'upload'
+            // keyPassword 'nibret'
+            // storeFile file('upload-keystore.jks')
+            // storePassword 'nibret'
         }
         release {
-            keyAlias 'upload'
-            keyPassword 'nibret'
-            storeFile file('upload-keystore.jks')
-            storePassword 'nibret'
+            // keyAlias 'upload'
+            // keyPassword 'nibret'
+            // storeFile file('upload-keystore.jks')
+            // storePassword 'nibret'
         }
     }
 
