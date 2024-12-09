@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:nibret/models/home_loan.dart';
 
@@ -6,38 +8,71 @@ class HomeLoanApiService {
   static const String baseUrl = 'https://nibret-vercel-django.vercel.app';
   static const int itemsPerPage = 10;
 
-  Future<List<LoanResponse>> getHomeLoans({
-    required int page,
-    String? searchQuery,
-  }) async {
+  final http.Client _client = http.Client();
+  static const Duration timeoutDuration = Duration(seconds: 30);
+
+  Future<Map<String, dynamic>> getHomeLoans(
+      {String? next, String? searchQuery, String? category}) async {
     try {
-      final queryParameters = {
-        'page': page.toString(),
-        'limit': itemsPerPage.toString(),
-        if (searchQuery != null && searchQuery.isNotEmpty)
-          'search': searchQuery,
-      };
+      final Uri uri;
+      if (next != null) {
+        uri = Uri.parse(next);
+      } else {
+        final queryParameters = {
+          'limit': '10',
+          if (searchQuery != "") 'search': searchQuery,
+          if (category != null) 'type': category
+        };
+        uri = Uri.parse('$baseUrl/home-loan/').replace(
+          queryParameters: queryParameters,
+        );
+      }
 
-      final uri = Uri.parse('$baseUrl/home-loan/').replace(
-        queryParameters: queryParameters,
-      );
-
-      final response = await http.get(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      );
-
+      final response = await _client.get(uri).timeout(timeoutDuration);
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-        final List<dynamic> jsonList = data['results'];
-        return jsonList.map((json) => LoanResponse.fromJson(json)).toList();
+        return data;
       } else {
-        throw Exception('Failed to load home loans');
+        throw HttpException(
+            'Failed to load properties. Status: ${response.statusCode}');
       }
+    } on SocketException catch (e) {
+      throw HttpException(
+          'Network error: Please check your internet connection. ${e.message}');
+    } on TimeoutException {
+      throw const HttpException('Request timed out. Please try again.');
+    } on HttpException catch (e) {
+      throw HttpException(e.message);
     } catch (e) {
-      throw Exception('Error fetching home loans: $e');
+      throw HttpException(
+          'Network error: Please check your internet connection. $e');
+    }
+  }
+
+  Future<LoanResponse> getHomeLoan(String id) async {
+    try {
+      final response = await _client
+          .get(Uri.parse('$baseUrl/home-loan/$id/'))
+          .timeout(timeoutDuration);
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+
+        final property = LoanResponse.fromJson(jsonData);
+
+        return property;
+      } else {
+        throw const HttpException('Failed to load loans.');
+      }
+    } on SocketException {
+      throw const HttpException('Oops, something went wrong');
+    } on TimeoutException {
+      throw const HttpException('Network error. Please try again.');
+    } on HttpException catch (e) {
+      throw HttpException(e.message);
+    } catch (e) {
+      throw const HttpException(
+          'An unexpected error occurred.  Please try again.');
     }
   }
 }

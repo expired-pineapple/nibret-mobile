@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nibret/models/home_loan.dart';
+import 'package:nibret/screens/home_loan_detail.dart';
 import 'package:nibret/services/home_loan_api.dart';
+import 'package:nibret/widgets/expandable_text.dart';
 
 class HomeLoan extends StatefulWidget {
   const HomeLoan({super.key});
@@ -14,7 +16,7 @@ class _HomeLoanScreenState extends State<HomeLoan> {
   final List<LoanResponse> _items = [];
   final ScrollController _scrollController = ScrollController();
 
-  int _currentPage = 1;
+  String? _next;
   bool _isLoading = false;
   bool _hasMoreData = true;
   String _searchQuery = '';
@@ -51,23 +53,27 @@ class _HomeLoanScreenState extends State<HomeLoan> {
     });
 
     try {
-      final newItems = await _apiService.getHomeLoans(
-        page: _currentPage,
+      final data = await _apiService.getHomeLoans(
+        next: _next,
         searchQuery: _searchQuery,
       );
 
+      final List<dynamic> jsonList = data['results'];
+      final newItems =
+          jsonList.map((json) => LoanResponse.fromJson(json)).toList();
       setState(() {
         if (newItems.isEmpty) {
           _hasMoreData = false;
         } else {
           _items.addAll(newItems);
-          _currentPage++;
+          _next = data['next'];
+          _hasMoreData = data['next'] != null;
         }
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _error = "Opps, Something went wrong.";
+        _error = e.toString();
         _isLoading = false;
       });
     }
@@ -76,7 +82,6 @@ class _HomeLoanScreenState extends State<HomeLoan> {
   Future<void> _refresh() async {
     setState(() {
       _items.clear();
-      _currentPage = 1;
       _hasMoreData = true;
       _error = null;
     });
@@ -87,7 +92,6 @@ class _HomeLoanScreenState extends State<HomeLoan> {
     setState(() {
       _searchQuery = value;
       _items.clear();
-      _currentPage = 1;
       _hasMoreData = true;
     });
     _loadHomeLoans();
@@ -170,7 +174,7 @@ class _HomeLoanScreenState extends State<HomeLoan> {
                                 ),
                               );
                             }
-                            if (!_hasMoreData) {
+                            if (!_isLoading && _items.isEmpty) {
                               return const Center(
                                 child: Padding(
                                   padding: EdgeInsets.all(16.0),
@@ -192,19 +196,30 @@ class _HomeLoanScreenState extends State<HomeLoan> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    item.name,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => LoanDetail(
+                                            item.id,
+                                            propertyId: item.id,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      item.name,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  Text(
-                                    item.description,
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                    ),
+                                  ExpandableText(
+                                    text: item.description,
+                                    maxLines: 2,
                                   ),
                                   const SizedBox(height: 16),
                                   Row(

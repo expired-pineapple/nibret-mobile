@@ -14,8 +14,6 @@ class ApiService {
   Future<Map<String, dynamic>> getProperties(
       {String? next, String? searchQuery, String? category}) async {
     try {
-      print("____________________________________Called");
-      print("$searchQuery From Service");
       final Uri uri;
       if (next != null) {
         uri = Uri.parse(next);
@@ -49,6 +47,30 @@ class ApiService {
     } catch (e) {
       throw HttpException(
           'Network error: Please check your internet connection. $e');
+    }
+  }
+
+  Future<List<Property>> searchProperties(filters) async {
+    try {
+      final response = await _client
+          .post(Uri.parse('$baseUrl/properties/search/'),
+              headers: {"Content-Type": "application/json"},
+              body: json.encode(filters))
+          .timeout(timeoutDuration);
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Property.fromJson(json)).toList();
+      } else {
+        throw HttpException(
+            'Failed to load properties. Status: ${response.statusCode}');
+      }
+    } on SocketException catch (e) {
+      throw HttpException(
+          'Network error: Please check your internet connection. ${e.message}');
+    } on TimeoutException {
+      throw const HttpException('Request timed out. Please try again.');
+    } catch (e) {
+      throw HttpException('Error parsing properties: $e');
     }
   }
 

@@ -56,7 +56,7 @@ class _AuctionDetailState extends State<AuctionDetail>
       if (!mounted) return;
 
       setState(() {
-        _error = "Opps, Something went wrong.";
+        _error = "Oops,Something went wrong.";
         _isLoading = false;
       });
     }

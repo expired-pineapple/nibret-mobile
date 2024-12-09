@@ -6,6 +6,7 @@ import 'package:nibret/widgets/property_skeleton.dart';
 import '../services/property_api.dart';
 import '../models/property.dart';
 import '../widgets/property_card.dart';
+import 'package:multiselect/multiselect.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,7 +19,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   RangeValues _priceRange = const RangeValues(0, 1000);
   int? _selectedBedrooms;
   int? _selectedBathrooms;
-  String? _selectedPropertyType;
+  List<String> _selectedPropertyType = [];
   bool _isLoading = false;
   bool _hasMoreData = true;
   String? _error;
@@ -27,7 +28,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final ApiService _apiService = ApiService();
-  final List<Property> _properties = [];
+  List<Property> _properties = [];
   List<bool> wishlist = List.generate(10, (index) => false);
 
   late TabController _tabController;
@@ -55,7 +56,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
-  void _tabListener() {}
   Future<void> _refresh() async {
     setState(() {
       _properties.clear();
@@ -68,7 +68,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   void _handleTabChange() {
     if (_tabController.indexIsChanging) {
-      print("Tab changed to: ${_categories[_tabController.index]}");
       setState(() {
         _properties.clear();
         _next = null;
@@ -97,9 +96,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void _searchListener() {
-    print("Search listener triggered");
-    print("Search text: ${_searchController.text}");
-
     if (_searchController.text.isEmpty) {
       setState(() {
         _properties.clear();
@@ -146,8 +142,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         next: _next,
         searchQuery: search,
       );
-      print("_______________________");
-      print(search);
 
       final List<dynamic> jsonList = data['results'];
       final newItems = jsonList.map((json) => Property.fromJson(json)).toList();
@@ -169,12 +163,41 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
+  Future<void> _searchProperties() async {
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final requestBody = {
+        'type': _selectedPropertyType,
+        'min_price': _priceRange.start,
+        'max_price': _priceRange.end * 1000,
+        'bathroom': _selectedBathrooms,
+        'bedroom': _selectedBedrooms,
+      };
+
+      final data = await _apiService.searchProperties(requestBody);
+
+      setState(() {
+        _properties = data;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
   void resetFilters() {
     setState(() {
       _priceRange = const RangeValues(0, 1000);
       _selectedBedrooms = null;
       _selectedBathrooms = null;
-      _selectedPropertyType = null;
+      _selectedPropertyType = [];
       _searchController.clear();
     });
   }
@@ -228,88 +251,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            side: BorderSide(
-                              color: _selectedPropertyType ==
-                                      "Luxury Apartments"
-                                  ? Colors.blue[900]!
-                                  : const Color.fromARGB(255, 153, 152, 152),
-                              width: 2.0,
-                            ),
-                          ),
-                          elevation: 0,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                _selectedPropertyType = "Luxury Apartments";
-                              });
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.all(18.0),
-                              child: Column(
-                                children: [
-                                  Icon(Icons.apartment_outlined),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    "Luxury Apartments",
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            side: BorderSide(
-                              color: _selectedPropertyType == "Villa"
-                                  ? Colors.blue[900]!
-                                  : const Color.fromARGB(255, 153, 152, 152),
-                              width: 2.0,
-                            ),
-                          ),
-                          elevation: 0,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                _selectedPropertyType = "Villa";
-                              });
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.all(18.0),
-                              child: Column(
-                                children: [
-                                  Icon(Icons.home_work_outlined),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    "Villa",
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  DropDownMultiSelect(
+                    onChanged: (List<String> x) {
+                      setState(() {
+                        _selectedPropertyType = x;
+                      });
+                    },
+                    options: _categories,
+                    selectedValues: _selectedPropertyType,
                   ),
                   const SizedBox(height: 20),
                   const Text(
@@ -478,7 +427,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                       ),
                       onPressed: () {
-                        setState(() {});
+                        _searchProperties();
                         Navigator.pop(context);
                       },
                       child: const Text(
@@ -544,9 +493,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     child: TextField(
                       style: const TextStyle(color: Colors.white),
                       controller: _searchController,
-                      onChanged: (value) {
-                        print("OnChanged: $value");
-                      },
                       decoration: InputDecoration(
                         hintText: 'Search destinations',
                         hintStyle:
@@ -695,7 +641,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                           ));
                                     },
                                   );
-                                }).toList(), // Convert the map result to a List<Widget>
+                                }).toList(),
                               ),
                             ))
                 ],

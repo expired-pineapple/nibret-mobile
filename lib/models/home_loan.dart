@@ -1,25 +1,26 @@
 class LoanResponse {
   final String id;
   final Loaner loaner;
-  final Criteria criteria;
+  final List<Criteria>? criteria;
   final String name;
   final String description;
 
-  LoanResponse({
-    required this.id,
-    required this.loaner,
-    required this.criteria,
-    required this.name,
-    required this.description,
-  });
+  LoanResponse(
+      {required this.id,
+      required this.loaner,
+      required this.name,
+      required this.description,
+      this.criteria});
 
-  factory LoanResponse.fromJson(Map<String, dynamic> json) {
+  factory LoanResponse.fromJson(json) {
     return LoanResponse(
       id: json['id'],
       loaner: Loaner.fromJson(json['loaner']),
-      criteria: Criteria.fromJson(json['criterias']),
       name: json['name'],
       description: json['description'],
+      criteria: (json['criteria'] as List<dynamic>)
+          .map((crieteria) => Criteria.fromJson(crieteria))
+          .toList(),
     );
   }
 }

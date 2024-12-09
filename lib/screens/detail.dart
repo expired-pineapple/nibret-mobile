@@ -61,7 +61,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
       if (!mounted) return;
 
       setState(() {
-        _error = "Opps, Something went wrong.";
+        _error = "Oops,Something went wrong.";
         _isLoading = false;
       });
     }
