@@ -11,19 +11,19 @@ class ApiService {
 
   final http.Client _client = http.Client();
   static const Duration timeoutDuration = Duration(seconds: 30);
-  Future<Map<String, dynamic>> getProperties({
-    String? next,
-    String? searchQuery,
-  }) async {
+  Future<Map<String, dynamic>> getProperties(
+      {String? next, String? searchQuery, String? category}) async {
     try {
+      print("____________________________________Called");
+      print("$searchQuery From Service");
       final Uri uri;
       if (next != null) {
         uri = Uri.parse(next);
       } else {
         final queryParameters = {
           'limit': '10',
-          if (searchQuery != null && searchQuery.isNotEmpty)
-            'search': searchQuery,
+          if (searchQuery != "") 'search': searchQuery,
+          if (category != null) 'type': category
         };
         uri = Uri.parse('$baseUrl/properties').replace(
           queryParameters: queryParameters,
