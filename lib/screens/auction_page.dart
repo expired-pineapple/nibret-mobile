@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:nibret/models/auction.dart';
 import 'package:nibret/widgets/auction_card.dart';
@@ -15,48 +17,97 @@ class _AuctionPageState extends State<AuctionPage>
     with TickerProviderStateMixin {
   final ApiService _apiService = ApiService();
   List<Auction> _properties = [];
+  bool _hasMoreData = true;
   bool _isLoading = true;
   String? _error;
+  String? _next;
   List<bool> wishlist = List.generate(10, (index) => false);
+
+  void _searchListener() {
+    if (_searchController.text.isEmpty) {
+      setState(() {
+        _properties.clear();
+        _next = null;
+        _hasMoreData = true;
+      });
+      _loadProperties();
+      return;
+    }
+
+    if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        _properties.clear();
+        _next = null;
+        _hasMoreData = true;
+      });
+      _loadProperties(search: _searchController.text);
+    });
+  }
+
+  Timer? _searchDebounce;
 
   @override
   void initState() {
     super.initState();
-    _initializeData();
+    _loadProperties();
+    _loadProperties();
+    _scrollController.addListener(_scrollListener);
+    _searchController.addListener(_searchListener);
   }
 
   @override
   void dispose() {
     _apiService.dispose();
+    _searchDebounce?.cancel();
+    _searchController.removeListener(_searchListener);
+    _searchController.dispose();
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
     super.dispose();
   }
 
-  Future<void> _initializeData() async {
-    _loadProperties();
+  late TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      if (!_isLoading && _hasMoreData) {
+        _loadProperties(search: _searchController.text, scroll: true);
+      }
+    }
   }
 
-  Future<void> _loadProperties() async {
+  Future<void> _loadProperties(
+      {String? search, String? category, bool scroll = false}) async {
     if (!mounted) return;
-
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
-    try {
-      final properties = await _apiService.getProperties();
-
-      if (!mounted) return;
-
+    if (!scroll) {
       setState(() {
-        _properties = properties;
+        _isLoading = true;
+      });
+    }
+    try {
+      final data = await _apiService.getAuctions(
+        next: _next,
+        searchQuery: search,
+      );
+
+      final List<dynamic> jsonList = data['results'];
+      final newItems = jsonList.map((json) => Auction.fromJson(json)).toList();
+      setState(() {
+        if (newItems.isEmpty) {
+          _hasMoreData = false;
+        } else {
+          _properties.addAll(newItems);
+          _next = data['next'];
+          _hasMoreData = data['next'] != null;
+        }
         _isLoading = false;
       });
     } catch (e) {
-      if (!mounted) return;
-
       setState(() {
-        _error = "Oops,Something went wrong.";
+        _error = e.toString();
         _isLoading = false;
       });
     }
@@ -100,10 +151,10 @@ class _AuctionPageState extends State<AuctionPage>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            _error!,
+          const Text(
+            "Something went wrong",
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
@@ -138,8 +189,10 @@ class _AuctionPageState extends State<AuctionPage>
                       border: Border.all(color: Colors.white),
                     ),
                     child: TextField(
+                      style: const TextStyle(color: Colors.white),
+                      controller: _searchController,
                       decoration: InputDecoration(
-                        hintText: 'Search destinations',
+                        hintText: 'Search Auctions',
                         hintStyle:
                             TextStyle(color: Colors.white.withOpacity(0.5)),
                         prefixIcon: const Icon(
@@ -183,6 +236,7 @@ class _AuctionPageState extends State<AuctionPage>
                               : RefreshIndicator(
                                   onRefresh: _handleRefresh,
                                   child: ListView.builder(
+                                    controller: _scrollController,
                                     padding: const EdgeInsets.all(16),
                                     itemCount: _properties.length,
                                     itemBuilder: (context, index) {

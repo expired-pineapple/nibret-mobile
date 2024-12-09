@@ -25,10 +25,21 @@ class _ProfileScreenState extends State<ProfileScreen>
   User? _user;
   bool _isLoading = true;
   bool _isSaving = false;
+  Future<void> _checkAuthentication() async {
+    bool isLoggedIn = await _authService.isLoggedIn();
+    if (!isLoggedIn && mounted) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const LoginScreen(),
+          ));
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    _checkAuthentication();
     _firstNameController = TextEditingController();
     _lastNameController = TextEditingController();
     _emailController = TextEditingController();

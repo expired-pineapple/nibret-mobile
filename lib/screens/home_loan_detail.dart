@@ -116,7 +116,6 @@ class _LoanDetailState extends State<LoanDetail> with TickerProviderStateMixin {
                                   const SizedBox(height: 20),
                                   SizedBox(
                                     height: 200,
-                                    width: 10,
                                     child: ListView.builder(
                                       itemCount: _property!.criteria?.length,
                                       itemBuilder: (context, index) {
@@ -137,7 +136,7 @@ class _LoanDetailState extends State<LoanDetail> with TickerProviderStateMixin {
                                               )
                                             ],
                                           ),
-                                          const SizedBox(height: 4)
+                                          const SizedBox(height: 6)
                                         ]);
                                       },
                                     ),
