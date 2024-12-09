@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       if (!_isLoading) {
-        _loadProperties(search: _searchController.text);
+        _loadProperties(search: _searchController.text, scrolled: true);
       }
     }
   }
@@ -130,13 +130,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<void> _loadProperties({String? search, String? category}) async {
+  Future<void> _loadProperties(
+      {String? search, String? category, bool scrolled = false}) async {
     if (!mounted) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
+    if (!scrolled) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
     try {
       final data = await _apiService.getProperties(
         next: _next,
@@ -157,7 +158,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = "Something went wrong";
         _isLoading = false;
       });
     }
@@ -186,7 +187,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = "Something went wrong";
         _isLoading = false;
       });
     }
@@ -238,27 +239,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             resetFilters();
                           });
                         },
-                        child: const Text('Reset Filters'),
+                        child: const Text('Reset Filters',
+                            style: TextStyle(color: Color(0xFF0668FE))),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Property Type',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  DropDownMultiSelect(
-                    onChanged: (List<String> x) {
-                      setState(() {
-                        _selectedPropertyType = x;
-                      });
-                    },
-                    options: _categories,
-                    selectedValues: _selectedPropertyType,
                   ),
                   const SizedBox(height: 20),
                   const Text(
@@ -270,6 +254,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                   const SizedBox(height: 10),
                   RangeSlider(
+                    activeColor: const Color(0xFF0668FE),
                     values: _priceRange,
                     min: 0,
                     max: 1000,
@@ -291,6 +276,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       Text('\$${_priceRange.end.round()}k'),
                     ],
                   ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Property Type',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  DropDownMultiSelect(
+                      whenEmpty: "Select Property Type",
+                      onChanged: (List<String> x) {
+                        setState(() {
+                          _selectedPropertyType = x;
+                        });
+                      },
+                      options: _categories,
+                      selectedValues: _selectedPropertyType,
+                      separator: " & "),
                   const SizedBox(height: 20),
                   const Text(
                     'Bedrooms',
@@ -597,53 +601,61 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     }).toList(),
                   ),
                   Expanded(
-                      child: _error != null
-                          ? _buildErrorView()
-                          : RefreshIndicator(
-                              onRefresh: _refresh,
-                              child: TabBarView(
-                                physics: const PageScrollPhysics(),
-                                controller: _tabController,
-                                children: _categories.map((category) {
-                                  return ListView.builder(
-                                    controller: _scrollController,
-                                    padding: const EdgeInsets.all(16),
-                                    itemCount: _properties.length + 1,
-                                    itemBuilder: (context, index) {
-                                      if (index == _properties.length) {
-                                        if (_isLoading) {
-                                          return const Center(
-                                            child: Padding(
-                                              padding: EdgeInsets.all(16.0),
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            ),
-                                          );
-                                        }
-                                        if (!_hasMoreData) {
-                                          return const Center(
-                                            child: Padding(
-                                              padding: EdgeInsets.all(16.0),
-                                              child: Text(
-                                                  'No Properties available'),
-                                            ),
-                                          );
-                                        }
-                                        return const SizedBox.shrink();
-                                      }
+                      child: _isLoading
+                          ? ListView.builder(
+                              padding: const EdgeInsets.all(16),
+                              itemCount: 5,
+                              itemBuilder: (context, index) {
+                                return const PropertyCardSkeleton();
+                              },
+                            )
+                          : _error != null
+                              ? _buildErrorView()
+                              : RefreshIndicator(
+                                  onRefresh: _refresh,
+                                  child: TabBarView(
+                                    physics: const PageScrollPhysics(),
+                                    controller: _tabController,
+                                    children: _categories.map((category) {
+                                      return ListView.builder(
+                                        controller: _scrollController,
+                                        padding: const EdgeInsets.all(16),
+                                        itemCount: _properties.length + 1,
+                                        itemBuilder: (context, index) {
+                                          if (index == _properties.length) {
+                                            if (_isLoading) {
+                                              return const Center(
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(16.0),
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                ),
+                                              );
+                                            }
+                                            if (!_hasMoreData) {
+                                              return const Center(
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(16.0),
+                                                  child: Text(
+                                                      'No Properties available'),
+                                                ),
+                                              );
+                                            }
+                                            return const SizedBox.shrink();
+                                          }
 
-                                      final item = _properties[index];
-                                      return Container(
-                                          margin:
-                                              const EdgeInsets.only(bottom: 16),
-                                          child: PropertyCard(
-                                            property: item,
-                                          ));
-                                    },
-                                  );
-                                }).toList(),
-                              ),
-                            ))
+                                          final item = _properties[index];
+                                          return Container(
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 16),
+                                              child: PropertyCard(
+                                                property: item,
+                                              ));
+                                        },
+                                      );
+                                    }).toList(),
+                                  ),
+                                ))
                 ],
               ),
             ),

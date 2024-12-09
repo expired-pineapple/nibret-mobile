@@ -16,7 +16,7 @@ class AuctionPage extends StatefulWidget {
 class _AuctionPageState extends State<AuctionPage>
     with TickerProviderStateMixin {
   final ApiService _apiService = ApiService();
-  List<Auction> _properties = [];
+  final List<Auction> _properties = [];
   bool _hasMoreData = true;
   bool _isLoading = true;
   String? _error;
@@ -67,7 +67,7 @@ class _AuctionPageState extends State<AuctionPage>
     super.dispose();
   }
 
-  late TextEditingController _searchController = TextEditingController();
+  late final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   void _scrollListener() {
