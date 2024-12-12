@@ -28,7 +28,20 @@ class ApiService {
         );
       }
 
-      final response = await _client.get(uri).timeout(timeoutDuration);
+  Future<Map<String, dynamic>> getProperties(
+      {int? offset, String? searchQuery, String? type, String? next}) async {
+    try {
+      final queryParameters = {
+        'offset': offset.toString(),
+        'limit': itemsPerPage.toString(),
+        if (searchQuery != null && searchQuery.isNotEmpty)
+          'search': searchQuery,
+      };
+      final response = await _client
+          .get(Uri.parse('$baseUrl/properties').replace(
+            queryParameters: queryParameters,
+          ))
+          .timeout(timeoutDuration);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);

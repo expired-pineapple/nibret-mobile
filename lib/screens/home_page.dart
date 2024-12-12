@@ -241,6 +241,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         },
                         child: const Text('Reset Filters',
                             style: TextStyle(color: Color(0xFF0668FE))),
+
                       ),
                     ],
                   ),
@@ -659,7 +660,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
