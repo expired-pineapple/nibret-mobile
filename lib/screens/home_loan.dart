@@ -73,7 +73,7 @@ class _HomeLoanScreenState extends State<HomeLoan> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = "Something went wrong.";
         _isLoading = false;
       });
     }

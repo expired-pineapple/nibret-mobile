@@ -182,7 +182,7 @@ class PropertyFilters extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _buildPropertyTypeCard(
-                          'Luxury Apartments',
+                          'Luxury Apartment',
                           Icons.apartment_outlined,
                           selectedPropertyType == 'apartment',
                           () => onPropertyTypeChanged('apartment'),

@@ -21,9 +21,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   int? _selectedBathrooms;
   List<String> _selectedPropertyType = [];
   bool _isLoading = false;
-  bool _hasMoreData = true;
+  bool _scrolling = true;
   String? _error;
   String? _next;
+  String? _selectedCategory;
 
   late TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -34,7 +35,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late TabController _tabController;
   final List<String> _categories = [
     "All",
-    "Luxury Apartments",
+    "Luxury Apartment",
     "Villa",
     "Plot Land",
     "Single Family",
@@ -50,8 +51,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void _scrollListener() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      if (!_isLoading) {
-        _loadProperties(search: _searchController.text, scrolled: true);
+      if (!_isLoading && _next != null) {
+        _loadProperties(
+            search: _searchController.text,
+            scrolled: true,
+            category: _selectedCategory);
       }
     }
   }
@@ -59,7 +63,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<void> _refresh() async {
     setState(() {
       _properties.clear();
-      _hasMoreData = true;
       _error = null;
       _next = null;
     });
@@ -70,8 +73,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (_tabController.indexIsChanging) {
       setState(() {
         _properties.clear();
-        _next = null;
-        _hasMoreData = true;
+        _selectedCategory = _categories[_tabController.index];
       });
       _loadProperties(
         search: _searchController.text,
@@ -100,7 +102,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       setState(() {
         _properties.clear();
         _next = null;
-        _hasMoreData = true;
       });
       _loadProperties();
       return;
@@ -111,9 +112,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       setState(() {
         _properties.clear();
         _next = null;
-        _hasMoreData = true;
       });
-      _loadProperties(search: _searchController.text);
+      _loadProperties(
+          search: _searchController.text, category: _selectedCategory);
     });
   }
 
@@ -127,6 +128,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     _tabController.dispose();
+    _tabController.removeListener(_handleTabChange);
     super.dispose();
   }
 
@@ -137,29 +139,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       setState(() {
         _isLoading = true;
       });
+    } else {
+      setState(() {
+        _scrolling = true;
+      });
     }
     try {
       final data = await _apiService.getProperties(
-        next: _next,
-        searchQuery: search,
-      );
+          next: _next, searchQuery: search, category: category);
 
       final List<dynamic> jsonList = data['results'];
       final newItems = jsonList.map((json) => Property.fromJson(json)).toList();
       setState(() {
-        if (newItems.isEmpty) {
-          _hasMoreData = false;
-        } else {
-          _properties.addAll(newItems);
-          _next = data['next'];
-          _hasMoreData = data['next'] != null;
-        }
+        _properties.addAll(newItems);
+        _next = data['next'];
         _isLoading = false;
+        _scrolling = false;
       });
     } catch (e) {
       setState(() {
         _error = "Something went wrong";
         _isLoading = false;
+        _scrolling = false;
       });
     }
   }
@@ -187,7 +188,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       });
     } catch (e) {
       setState(() {
-        _error = "Something went wrong";
+        _error = e.toString();
         _isLoading = false;
       });
     }
@@ -557,7 +558,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         case 'all':
                           iconData = Icons.dashboard_rounded;
                           break;
-                        case 'luxury apartments':
+                        case 'Luxury Apartment':
                           iconData = Icons.apartment_rounded;
                           break;
                         case 'villa':
@@ -601,29 +602,29 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     }).toList(),
                   ),
                   Expanded(
-                      child: _isLoading
-                          ? ListView.builder(
-                              padding: const EdgeInsets.all(16),
-                              itemCount: 5,
-                              itemBuilder: (context, index) {
-                                return const PropertyCardSkeleton();
-                              },
-                            )
-                          : _error != null
-                              ? _buildErrorView()
-                              : RefreshIndicator(
-                                  onRefresh: _refresh,
-                                  child: TabBarView(
-                                    physics: const PageScrollPhysics(),
-                                    controller: _tabController,
-                                    children: _categories.map((category) {
-                                      return ListView.builder(
+                    child: _isLoading
+                        ? ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: 5,
+                            itemBuilder: (context, index) {
+                              return const PropertyCardSkeleton();
+                            },
+                          )
+                        : _error != null
+                            ? _buildErrorView()
+                            : TabBarView(
+                                physics: const PageScrollPhysics(),
+                                controller: _tabController,
+                                children: _categories.map((category) {
+                                  return RefreshIndicator(
+                                      onRefresh: _refresh,
+                                      child: ListView.builder(
                                         controller: _scrollController,
                                         padding: const EdgeInsets.all(16),
                                         itemCount: _properties.length + 1,
                                         itemBuilder: (context, index) {
                                           if (index == _properties.length) {
-                                            if (_isLoading) {
+                                            if (_scrolling) {
                                               return const Center(
                                                 child: Padding(
                                                   padding: EdgeInsets.all(16.0),
@@ -632,7 +633,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                 ),
                                               );
                                             }
-                                            if (!_hasMoreData) {
+                                            if (_properties.isEmpty) {
                                               return const Center(
                                                 child: Padding(
                                                   padding: EdgeInsets.all(16.0),
@@ -652,10 +653,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                 property: item,
                                               ));
                                         },
-                                      );
-                                    }).toList(),
-                                  ),
-                                ))
+                                      ));
+                                }).toList(),
+                              ),
+                  )
                 ],
               ),
             ),
