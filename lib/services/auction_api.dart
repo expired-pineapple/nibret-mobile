@@ -7,24 +7,36 @@ import 'package:nibret/models/auction.dart';
 
 class ApiService {
   static const String baseUrl = 'https://nibret-vercel-django.vercel.app';
-
-  // Create a custom http client with timeout
+  static const int itemsPerPage = 10;
   final http.Client _client = http.Client();
+
   static const Duration timeoutDuration = Duration(seconds: 30);
 
-  Future<List<Auction>> getProperties() async {
+  Future<Map<String, dynamic>> getAuctions(
+      {String? next, String? searchQuery, String? category}) async {
     try {
-      final response = await _client
-          .get(Uri.parse('$baseUrl/auctions/'))
-          .timeout(timeoutDuration);
+      final Uri uri;
+      if (next != null) {
+        uri = Uri.parse(next);
+      } else {
+        final queryParameters = {
+          'limit': '10',
+          if (searchQuery != "") 'search': searchQuery,
+          if (category != null) 'type': category
+        };
+        uri = Uri.parse('$baseUrl/auctions/').replace(
+          queryParameters: queryParameters,
+        );
+      }
+
+      final response = await _client.get(uri).timeout(timeoutDuration);
 
       if (response.statusCode == 200) {
-        Map<String, dynamic> jsonMap = json.decode(response.body);
-        List<dynamic> results = jsonMap['results'];
-        return results.map((json) => Auction.fromJson(json)).toList();
+        final Map<String, dynamic> data = json.decode(response.body);
+        return data;
       } else {
         throw HttpException(
-            'Failed to load properties. Status: ${response.statusCode}');
+            'Failed to load Auctions. Status: ${response.statusCode}');
       }
     } on SocketException catch (e) {
       throw HttpException(
@@ -34,7 +46,8 @@ class ApiService {
     } on HttpException catch (e) {
       throw HttpException(e.message);
     } catch (e) {
-      throw HttpException('An unexpected error occurred listing here: $e');
+      throw HttpException(
+          'Network error: Please check your internet connection. $e');
     }
   }
 
@@ -52,7 +65,7 @@ class ApiService {
         return auction;
       } else {
         throw HttpException(
-            'Failed to load properties. Status: ${response.statusCode}');
+            'Failed to load Auctions. Status: ${response.statusCode}');
       }
     } on SocketException catch (e) {
       throw HttpException(

@@ -6,6 +6,7 @@ import 'package:nibret/widgets/property_skeleton.dart';
 import '../services/property_api.dart';
 import '../models/property.dart';
 import '../widgets/property_card.dart';
+import 'package:multiselect/multiselect.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,7 +19,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   RangeValues _priceRange = const RangeValues(0, 1000);
   int? _selectedBedrooms;
   int? _selectedBathrooms;
-  String? _selectedPropertyType;
+  List<String> _selectedPropertyType = [];
   bool _isLoading = false;
   bool _hasMoreData = true;
   String? _error;
@@ -27,7 +28,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final ApiService _apiService = ApiService();
-  final List<Property> _properties = [];
+  List<Property> _properties = [];
   List<bool> wishlist = List.generate(10, (index) => false);
 
   late TabController _tabController;
@@ -50,12 +51,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       if (!_isLoading) {
-        _loadProperties(search: _searchController.text);
+        _loadProperties(search: _searchController.text, scrolled: true);
       }
     }
   }
 
-  void _tabListener() {}
   Future<void> _refresh() async {
     setState(() {
       _properties.clear();
@@ -68,7 +68,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   void _handleTabChange() {
     if (_tabController.indexIsChanging) {
-      print("Tab changed to: ${_categories[_tabController.index]}");
       setState(() {
         _properties.clear();
         _next = null;
@@ -97,9 +96,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void _searchListener() {
-    print("Search listener triggered");
-    print("Search text: ${_searchController.text}");
-
     if (_searchController.text.isEmpty) {
       setState(() {
         _properties.clear();
@@ -134,20 +130,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<void> _loadProperties({String? search, String? category}) async {
+  Future<void> _loadProperties(
+      {String? search, String? category, bool scrolled = false}) async {
     if (!mounted) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
+    if (!scrolled) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
     try {
       final data = await _apiService.getProperties(
         next: _next,
         searchQuery: search,
       );
-      print("_______________________");
-      print(search);
 
       final List<dynamic> jsonList = data['results'];
       final newItems = jsonList.map((json) => Property.fromJson(json)).toList();
@@ -163,7 +158,36 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = "Something went wrong";
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _searchProperties() async {
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final requestBody = {
+        'type': _selectedPropertyType,
+        'min_price': _priceRange.start,
+        'max_price': _priceRange.end * 1000,
+        'bathroom': _selectedBathrooms,
+        'bedroom': _selectedBedrooms,
+      };
+
+      final data = await _apiService.searchProperties(requestBody);
+
+      setState(() {
+        _properties = data;
+      });
+    } catch (e) {
+      setState(() {
+        _error = "Something went wrong";
         _isLoading = false;
       });
     }
@@ -174,7 +198,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       _priceRange = const RangeValues(0, 1000);
       _selectedBedrooms = null;
       _selectedBathrooms = null;
-      _selectedPropertyType = null;
+      _selectedPropertyType = [];
       _searchController.clear();
     });
   }
@@ -215,100 +239,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             resetFilters();
                           });
                         },
-                        child: Text(
-                            selectionColor: Colors.blue[900], 'Reset Filters'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Property Type',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            side: BorderSide(
-                              color: _selectedPropertyType ==
-                                      "Luxury Apartments"
-                                  ? Colors.blue[900]!
-                                  : const Color.fromARGB(255, 153, 152, 152),
-                              width: 2.0,
-                            ),
-                          ),
-                          elevation: 0,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                _selectedPropertyType = "Luxury Apartments";
-                              });
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.all(18.0),
-                              child: Column(
-                                children: [
-                                  Icon(Icons.apartment_outlined),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    "Luxury Apartments",
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            side: BorderSide(
-                              color: _selectedPropertyType == "Villa"
-                                  ? Colors.blue[900]!
-                                  : const Color.fromARGB(255, 153, 152, 152),
-                              width: 2.0,
-                            ),
-                          ),
-                          elevation: 0,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                _selectedPropertyType = "Villa";
-                              });
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.all(18.0),
-                              child: Column(
-                                children: [
-                                  Icon(Icons.home_work_outlined),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    "Villa",
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                        child: const Text('Reset Filters',
+                            style: TextStyle(color: Color(0xFF0668FE))),
+
                       ),
                     ],
                   ),
@@ -322,6 +255,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                   const SizedBox(height: 10),
                   RangeSlider(
+                    activeColor: const Color(0xFF0668FE),
                     values: _priceRange,
                     min: 0,
                     max: 1000,
@@ -343,6 +277,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       Text('\$${_priceRange.end.round()}k'),
                     ],
                   ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Property Type',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  DropDownMultiSelect(
+                      whenEmpty: "Select Property Type",
+                      onChanged: (List<String> x) {
+                        setState(() {
+                          _selectedPropertyType = x;
+                        });
+                      },
+                      options: _categories,
+                      selectedValues: _selectedPropertyType,
+                      separator: " & "),
                   const SizedBox(height: 20),
                   const Text(
                     'Bedrooms',
@@ -479,7 +432,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                       ),
                       onPressed: () {
-                        setState(() {});
+                        _searchProperties();
                         Navigator.pop(context);
                       },
                       child: const Text(
@@ -545,9 +498,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     child: TextField(
                       style: const TextStyle(color: Colors.white),
                       controller: _searchController,
-                      onChanged: (value) {
-                        print("OnChanged: $value");
-                      },
                       decoration: InputDecoration(
                         hintText: 'Search destinations',
                         hintStyle:
@@ -652,53 +602,61 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     }).toList(),
                   ),
                   Expanded(
-                      child: _error != null
-                          ? _buildErrorView()
-                          : RefreshIndicator(
-                              onRefresh: _refresh,
-                              child: TabBarView(
-                                physics: const PageScrollPhysics(),
-                                controller: _tabController,
-                                children: _categories.map((category) {
-                                  return ListView.builder(
-                                    controller: _scrollController,
-                                    padding: const EdgeInsets.all(16),
-                                    itemCount: _properties.length + 1,
-                                    itemBuilder: (context, index) {
-                                      if (index == _properties.length) {
-                                        if (_isLoading) {
-                                          return const Center(
-                                            child: Padding(
-                                              padding: EdgeInsets.all(16.0),
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            ),
-                                          );
-                                        }
-                                        if (!_hasMoreData) {
-                                          return const Center(
-                                            child: Padding(
-                                              padding: EdgeInsets.all(16.0),
-                                              child: Text(
-                                                  'No Properties available'),
-                                            ),
-                                          );
-                                        }
-                                        return const SizedBox.shrink();
-                                      }
+                      child: _isLoading
+                          ? ListView.builder(
+                              padding: const EdgeInsets.all(16),
+                              itemCount: 5,
+                              itemBuilder: (context, index) {
+                                return const PropertyCardSkeleton();
+                              },
+                            )
+                          : _error != null
+                              ? _buildErrorView()
+                              : RefreshIndicator(
+                                  onRefresh: _refresh,
+                                  child: TabBarView(
+                                    physics: const PageScrollPhysics(),
+                                    controller: _tabController,
+                                    children: _categories.map((category) {
+                                      return ListView.builder(
+                                        controller: _scrollController,
+                                        padding: const EdgeInsets.all(16),
+                                        itemCount: _properties.length + 1,
+                                        itemBuilder: (context, index) {
+                                          if (index == _properties.length) {
+                                            if (_isLoading) {
+                                              return const Center(
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(16.0),
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                ),
+                                              );
+                                            }
+                                            if (!_hasMoreData) {
+                                              return const Center(
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(16.0),
+                                                  child: Text(
+                                                      'No Properties available'),
+                                                ),
+                                              );
+                                            }
+                                            return const SizedBox.shrink();
+                                          }
 
-                                      final item = _properties[index];
-                                      return Container(
-                                          margin:
-                                              const EdgeInsets.only(bottom: 16),
-                                          child: PropertyCard(
-                                            property: item,
-                                          ));
-                                    },
-                                  );
-                                }).toList(), // Convert the map result to a List<Widget>
-                              ),
-                            ))
+                                          final item = _properties[index];
+                                          return Container(
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 16),
+                                              child: PropertyCard(
+                                                property: item,
+                                              ));
+                                        },
+                                      );
+                                    }).toList(),
+                                  ),
+                                ))
                 ],
               ),
             ),

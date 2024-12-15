@@ -125,7 +125,7 @@ class _AuctionCardState extends State<AuctionCard> {
                             const Icon(Icons.attach_money_sharp,
                                 size: 25, color: Colors.black),
                             const SizedBox(width: 4),
-                            Text('${widget.auction.startingBid} Starting bid'),
+                            Text(' Starting bid ${widget.auction.startingBid}'),
                           ],
                         ),
                         const SizedBox(width: 16),

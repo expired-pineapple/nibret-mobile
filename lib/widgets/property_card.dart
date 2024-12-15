@@ -188,16 +188,13 @@ class _PropertyCardState extends State<PropertyCard> {
                   Row(
                     children: [
                       Icon(Icons.bed, size: 16, color: Colors.grey[600]),
-                      const SizedBox(width: 4),
                       Text('${widget.property.amenities.bedroom} Beds'),
-                      const SizedBox(width: 16),
+                      const Spacer(),
                       Icon(Icons.bathroom, size: 16, color: Colors.grey[600]),
-                      const SizedBox(width: 4),
                       Text('${widget.property.amenities.bathroom} Bathrooms'),
-                      const SizedBox(width: 16),
+                      const Spacer(),
                       Icon(Icons.square_foot,
                           size: 16, color: Colors.grey[600]),
-                      const SizedBox(width: 4),
                       Text('${widget.property.amenities.area} m²'),
                     ],
                   ),

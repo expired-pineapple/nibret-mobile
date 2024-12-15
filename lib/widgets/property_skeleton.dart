@@ -30,8 +30,6 @@ class PropertyCardSkeleton extends StatelessWidget {
                     _buildShimmerBox(height: 16, width: 80),
                     const SizedBox(width: 16),
                     _buildShimmerBox(height: 16, width: 100),
-                    const SizedBox(width: 16),
-                    _buildShimmerBox(height: 16, width: 70),
                   ],
                 ),
                 const SizedBox(height: 8),
