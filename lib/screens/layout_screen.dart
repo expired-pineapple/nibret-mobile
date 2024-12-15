@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:nibret/provider/auth_provider.dart';
 import 'package:nibret/screens/auction_page.dart';
 import 'package:nibret/screens/home_loan.dart';
 import 'package:nibret/screens/home_page.dart';
-import 'package:nibret/screens/login_screen.dart';
 import 'package:nibret/screens/profile_screen.dart';
 import 'package:nibret/screens/wishlist_page.dart';
-import 'package:provider/provider.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class MainScreen extends StatefulWidget {
@@ -85,32 +82,12 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: PersistentTabView(
-        context,
-        controller: _controller,
-        screens: _buildScreens(),
-        items: _navBarItems(),
-        backgroundColor: Colors.white,
-        navBarStyle: NavBarStyle.style9,
-        onItemSelected: (index) {
-          final authProvider =
-              Provider.of<AuthProvider>(context, listen: false);
-
-          if (index == 4 && !authProvider.isAuthenticated) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const LoginScreen(),
-              ),
-            ).then((value) {
-              if (authProvider.isAuthenticated) {
-                _controller.index = 4;
-                _controller.index = 0;
-              }
-            });
-          }
-        },
-      ),
+      body: PersistentTabView(context,
+          controller: _controller,
+          screens: _buildScreens(),
+          items: _navBarItems(),
+          backgroundColor: Colors.white,
+          navBarStyle: NavBarStyle.style9),
     );
   }
 }

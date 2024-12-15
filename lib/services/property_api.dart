@@ -15,14 +15,16 @@ class ApiService {
       {String? next, String? searchQuery, String? category}) async {
     try {
       final Uri uri;
+      final queryParameters = {
+        'limit': '10',
+        if (searchQuery != "") 'search': searchQuery,
+        if (category != null || category == "All") 'type': category
+      };
       if (next != null) {
-        uri = Uri.parse(next);
+        uri = Uri.parse(next).replace(
+          queryParameters: queryParameters,
+        );
       } else {
-        final queryParameters = {
-          'limit': '10',
-          if (searchQuery != "") 'search': searchQuery,
-          if (category != null) 'type': category
-        };
         uri = Uri.parse('$baseUrl/properties').replace(
           queryParameters: queryParameters,
         );
