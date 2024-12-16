@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nibret/screens/home_page.dart';
 import 'package:toastification/toastification.dart';
 import 'package:nibret/provider/auth_provider.dart';
 import 'package:nibret/screens/layout_screen.dart';
@@ -34,22 +35,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (!mounted) return;
 
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const MainScreen(initialIndex: 0),
-          ),
-          (route) => false,
-        );
+        Navigator.push(
+            context, MaterialPageRoute(builder: (_) => const HomePage()));
       } catch (e) {
-        String errorMessage = "Login failed";
-
+        String errorMessage = e.toString();
         if (e is Map<String, dynamic>) {
           if (e.containsKey('non_field_errors')) {
             errorMessage = e['non_field_errors'][0];
           }
         }
-
         _showToast(errorMessage, isError: true);
       } finally {
         if (mounted) {
@@ -169,11 +163,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
 
                 const SizedBox(height: 20),
-
-                // Login button
                 ElevatedButton(
                   onPressed: _isSubmitting ? null : logIn,
                   style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
                     backgroundColor: const Color(0XFF163C9F),
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
@@ -213,12 +206,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SignUpScreen(),
-                          ),
-                        );
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const SignUpScreen()));
                       },
                       child: const Text(
                         'Sign Up',

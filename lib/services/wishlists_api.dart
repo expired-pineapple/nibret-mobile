@@ -28,7 +28,7 @@ class WishListsApiService {
       if (response.statusCode == 200) {
         final responseBody = json.decode(response.body);
 
-        final wishlist = WishlistItem.fromJson(responseBody[0]);
+        final wishlist = WishlistItem.fromJson(responseBody['results'][0]);
         return wishlist;
       } else {
         throw const HttpException('Failed to load properties');

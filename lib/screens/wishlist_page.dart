@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nibret/models/auction.dart';
 import 'package:nibret/models/property.dart';
-import 'package:nibret/provider/auth_provider.dart';
-import 'package:nibret/screens/login_screen.dart';
-import 'package:nibret/screens/signup_screen.dart';
-import 'package:nibret/services/auth_service.dart';
 import 'package:nibret/widgets/auction_card.dart';
 import 'package:nibret/services/wishlists_api.dart';
 import 'package:nibret/widgets/property_card.dart';
-import 'package:provider/provider.dart';
 
 class WishlistPage extends StatefulWidget {
   const WishlistPage({super.key});
@@ -21,34 +16,17 @@ class _WishlistPageState extends State<WishlistPage>
     with TickerProviderStateMixin {
   final WishListsApiService _apiService = WishListsApiService();
   late TabController _tabController;
-  bool _isAuthenticated = false;
   List<Auction> _auctions = [];
   List<Property> _properties = [];
   bool _isLoading = true;
   String? _error;
   List<bool> wishlist = List.generate(10, (index) => false);
-  final AuthService _authService = AuthService();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    final auth = Provider.of<AuthProvider>(context, listen: false);
-    _isAuthenticated = auth.isAuthenticated;
-    _checkAuthentication();
-
     _initializeData();
-  }
-
-  Future<void> _checkAuthentication() async {
-    bool isLoggedIn = await _authService.isLoggedIn();
-    if (!isLoggedIn && mounted) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const LoginScreen(),
-          ));
-    }
   }
 
   @override
@@ -76,15 +54,19 @@ class _WishlistPageState extends State<WishlistPage>
       if (!mounted) return;
 
       setState(() {
-        _auctions = properties.auctions;
-        _properties = properties.property;
+        if (properties.auctions!.isNotEmpty) {
+          _auctions = properties.auctions!;
+        }
+        if (properties.property!.isNotEmpty) {
+          _properties = properties.property!;
+        }
         _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
 
       setState(() {
-        _error = "Oops,Something went wrong.";
+        _error = e.toString();
         _isLoading = false;
       });
     }
@@ -105,6 +87,7 @@ class _WishlistPageState extends State<WishlistPage>
           content: const Text('Network Failed. Please try again.'),
           action: SnackBarAction(
             label: 'Retry',
+            textColor: Colors.white,
             onPressed: () => _handleWishlistToggle(item, isWishlisted),
           ),
         ),
@@ -148,44 +131,6 @@ class _WishlistPageState extends State<WishlistPage>
     if (_error != null) {
       return _buildErrorView();
     }
-
-    if (!_isAuthenticated) {
-      return Scaffold(
-          backgroundColor: const Color(0xFF0668FE),
-          body: Center(
-            child: Column(
-              children: [
-                Image.asset('assets/Logo.png', height: 99, width: 120),
-                const Text(
-                  "Sign in to save your favorite homes",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0668FE),
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const SignUpScreen(),
-                    ));
-                  },
-                  child: const Text(
-                    'Create an account',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          ));
-    }
-
     return TabBarView(
       controller: _tabController,
       children: [

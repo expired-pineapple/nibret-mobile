@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:nibret/widgets/map_with_custom_info.dart';
 import 'package:nibret/widgets/property_skeleton.dart';
-import '../services/property_api.dart';
-import '../models/property.dart';
-import '../widgets/property_card.dart';
-import 'package:multiselect/multiselect.dart';
+import 'package:nibret/services/property_api.dart';
+import 'package:nibret/models/property.dart';
+import 'package:nibret/widgets/property_card.dart';
+import 'package:nibret/widgets/multiselect.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -242,7 +242,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         },
                         child: const Text('Reset Filters',
                             style: TextStyle(color: Color(0xFF0668FE))),
-
                       ),
                     ],
                   ),

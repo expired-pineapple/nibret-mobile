@@ -22,6 +22,7 @@ class PropertyCard extends StatefulWidget {
 final AuthService _authService = AuthService();
 Future<void> _checkAuthentication(context) async {
   bool isLoggedIn = await _authService.isLoggedIn();
+  print(isLoggedIn);
   if (!isLoggedIn) {
     Navigator.push(
         context,

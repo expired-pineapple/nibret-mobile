@@ -11,12 +11,13 @@ class ApiService {
 
   final http.Client _client = http.Client();
   static const Duration timeoutDuration = Duration(seconds: 30);
+
   Future<Map<String, dynamic>> getProperties(
       {String? next, String? searchQuery, String? category}) async {
     try {
       final Uri uri;
       final queryParameters = {
-        'limit': '10',
+        'limit': '40',
         if (searchQuery != "") 'search': searchQuery,
         if (category != null || category == "All") 'type': category
       };
@@ -29,18 +30,8 @@ class ApiService {
           queryParameters: queryParameters,
         );
       }
-
-  Future<Map<String, dynamic>> getProperties(
-      {int? offset, String? searchQuery, String? type, String? next}) async {
-    try {
-      final queryParameters = {
-        'offset': offset.toString(),
-        'limit': itemsPerPage.toString(),
-        if (searchQuery != null && searchQuery.isNotEmpty)
-          'search': searchQuery,
-      };
       final response = await _client
-          .get(Uri.parse('$baseUrl/properties').replace(
+          .get(uri.replace(
             queryParameters: queryParameters,
           ))
           .timeout(timeoutDuration);

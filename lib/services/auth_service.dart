@@ -155,6 +155,7 @@ class AuthService {
   Future<void> logout() async {
     try {
       final token = await getToken();
+      print(token);
       if (token != null) {
         await http.post(
           Uri.parse('$baseUrl/accounts/logout'),
@@ -169,12 +170,12 @@ class AuthService {
     } finally {
       await deleteToken();
       await deleteUserData();
-      await GoogleSignIn().signOut();
     }
   }
 
   Future<bool> isLoggedIn() async {
     final token = await getToken();
+
     return token != null;
   }
 

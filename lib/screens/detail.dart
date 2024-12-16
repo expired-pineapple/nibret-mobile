@@ -261,10 +261,15 @@ class _PropertyDetailsState extends State<PropertyDetails>
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0668FE),
+                          backgroundColor:
+                              const Color.fromARGB(255, 255, 255, 255),
                           padding: const EdgeInsets.symmetric(
                             vertical: 16,
                             horizontal: 24,
+                          ),
+                          side: const BorderSide(
+                            width: 3.0,
+                            color: Colors.blueAccent,
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -273,7 +278,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
                         child: const Text(
                           'Request Tour',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.blueAccent,
                             fontSize: 16,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.bold,

@@ -54,6 +54,19 @@ class _RequestTourState extends State<RequestTour> {
       initialDate: DateTime.now().add(const Duration(days: 1)),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 30)),
+      builder: (BuildContext context, Widget? widget) => Theme(
+        data: ThemeData(
+          colorScheme:
+              const ColorScheme.light(primary: Color.fromARGB(255, 5, 79, 207)),
+          datePickerTheme: const DatePickerThemeData(
+            backgroundColor: Colors.white,
+            dividerColor: Color.fromARGB(255, 5, 79, 207),
+            headerBackgroundColor: Color.fromARGB(255, 5, 79, 207),
+            headerForegroundColor: Colors.white,
+          ),
+        ),
+        child: widget!,
+      ),
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -102,7 +115,7 @@ class _RequestTourState extends State<RequestTour> {
       }
     } catch (e) {
       if (mounted) {
-        _showToast('Tour request submitted successfully', isError: true);
+        _showToast(e.toString(), isError: true);
       }
     } finally {
       if (mounted) {
@@ -129,7 +142,7 @@ class _RequestTourState extends State<RequestTour> {
       appBar: AppBar(
         title: const Text('Request Tour'),
         backgroundColor: Colors.transparent,
-        elevation: 0,
+        elevation: 10,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
@@ -142,39 +155,39 @@ class _RequestTourState extends State<RequestTour> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Select Preferred Date & Time',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Select Preferred Date & Time',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 16),
-                      ListTile(
-                        leading: const Icon(Icons.calendar_today),
-                        title: Text(
-                          _selectedDate == null
-                              ? 'Select Date and Time'
-                              : '${DateFormat('MMM dd, yyyy').format(_selectedDate!)} ${_selectedTime?.format(context) ?? ''}',
-                        ),
-                        onTap: () => _selectDate(context),
-                      )
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 16),
+                    ListTile(
+                      leading: const Icon(Icons.calendar_today),
+                      title: Text(
+                        _selectedDate == null
+                            ? 'Select Date and Time'
+                            : '${DateFormat('MMM dd, yyyy').format(_selectedDate!)} ${_selectedTime?.format(context) ?? ''}',
+                      ),
+                      onTap: () => _selectDate(context),
+                    )
+                  ],
                 ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
+                cursorColor: Colors.blue[900],
                 decoration: InputDecoration(
                   labelText: 'Phone Number',
+                  labelStyle: const TextStyle(color: Colors.grey),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -192,8 +205,11 @@ class _RequestTourState extends State<RequestTour> {
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
+                cursorColor: Colors.blue[900],
                 decoration: InputDecoration(
                   labelText: 'Email',
+                  labelStyle: const TextStyle(color: Colors.grey),
+                  focusColor: Colors.blue[900],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -211,8 +227,10 @@ class _RequestTourState extends State<RequestTour> {
               TextFormField(
                 controller: _notesController,
                 maxLines: 3,
+                cursorColor: Colors.blue[900],
                 decoration: InputDecoration(
                   labelText: 'Additional Notes',
+                  labelStyle: const TextStyle(color: Colors.grey),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

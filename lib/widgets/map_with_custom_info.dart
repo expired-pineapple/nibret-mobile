@@ -31,7 +31,7 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     _getCurrentLocation();
-    _initializeData();
+    _loadProperties();
   }
 
   @override
@@ -79,10 +79,6 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  Future<void> _initializeData() async {
-    _loadProperties();
-  }
-
   Future<void> _loadProperties() async {
     if (!mounted) return;
 
@@ -96,7 +92,7 @@ class _MapScreenState extends State<MapScreen> {
 
       final List<dynamic> jsonList = data['results'];
       final newItems = jsonList.map((json) => Property.fromJson(json)).toList();
-
+      print(newItems);
       if (!mounted) return;
 
       setState(() {

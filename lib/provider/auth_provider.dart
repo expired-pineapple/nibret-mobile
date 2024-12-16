@@ -30,7 +30,7 @@ class AuthProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      throw Exception("Something went wrong.");
+      throw Exception(e.toString());
     } finally {
       _isLoading = false;
       notifyListeners();

@@ -25,21 +25,10 @@ class _ProfileScreenState extends State<ProfileScreen>
   User? _user;
   bool _isLoading = true;
   bool _isSaving = false;
-  Future<void> _checkAuthentication() async {
-    bool isLoggedIn = await _authService.isLoggedIn();
-    if (!isLoggedIn && mounted) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const LoginScreen(),
-          ));
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-    _checkAuthentication();
     _firstNameController = TextEditingController();
     _lastNameController = TextEditingController();
     _emailController = TextEditingController();
@@ -72,7 +61,8 @@ class _ProfileScreenState extends State<ProfileScreen>
   void _handleError(dynamic error) {
     if (error.toString().contains('Unauthorized')) {
       _authService.deleteToken();
-      Navigator.of(context).pushReplacementNamed('/login');
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => const LoginScreen()));
     }
   }
 
@@ -186,13 +176,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                 child: Column(
                   children: [
                     Text(
-                      '${_user!.firstName} ${_user!.lastName}',
+                      '${_user?.firstName} ${_user?.lastName}',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                           fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      _user!.email,
+                      ' ${_user?.email}',
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w400),
                     ),

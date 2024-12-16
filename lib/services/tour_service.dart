@@ -15,21 +15,18 @@ class TourApiService {
       final authService = AuthService();
       final token = await authService.getToken();
       final response = await http.post(
-        Uri.parse('$baseUrl/tour/'),
+        Uri.parse('$baseUrl/tour/add_items/'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
-          'properties': propertyId,
+          'item_id': propertyId,
           'date': tourDate.toIso8601String(),
         }),
       );
-      if (response.statusCode == 201) {
-        return jsonDecode(response.body);
-      } else {
-        throw Exception('Failed to create tour request: ${response.body}');
-      }
+
+      return jsonDecode(response.body);
     } catch (e) {
       throw Exception('Failed to create tour request: $e');
     }

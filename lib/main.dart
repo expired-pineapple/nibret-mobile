@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nibret/provider/auth_provider.dart';
+import 'package:nibret/provider/navigator_provider.dart';
 import 'package:nibret/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
@@ -8,6 +9,7 @@ void main() {
   runApp(ToastificationWrapper(
     child: MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: const MyApp(),

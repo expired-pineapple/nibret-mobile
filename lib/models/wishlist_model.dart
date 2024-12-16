@@ -2,12 +2,12 @@ import 'package:nibret/models/auction.dart';
 import 'package:nibret/models/property.dart';
 
 class WishlistItem {
-  final List<Auction> auctions;
-  final List<Property> property;
+  final List<Auction>? auctions;
+  final List<Property>? property;
 
   WishlistItem({
-    required this.auctions,
-    required this.property,
+    this.auctions,
+    this.property,
   });
 
   factory WishlistItem.fromJson(Map<String, dynamic> json) {

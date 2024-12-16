@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:nibret/provider/auth_provider.dart';
+import 'package:nibret/screens/login_screen.dart';
+import 'package:provider/provider.dart';
+
 import 'package:nibret/screens/auction_page.dart';
 import 'package:nibret/screens/home_loan.dart';
 import 'package:nibret/screens/home_page.dart';
 import 'package:nibret/screens/profile_screen.dart';
 import 'package:nibret/screens/wishlist_page.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:nibret/provider/navigator_provider.dart';
 
 class MainScreen extends StatefulWidget {
   final int initialIndex;
@@ -25,6 +30,11 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _controller = PersistentTabController(initialIndex: widget.initialIndex);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<NavigationProvider>(context, listen: false)
+          .setIndex(widget.initialIndex);
+    });
   }
 
   @override
@@ -80,14 +90,40 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: PersistentTabView(context,
-          controller: _controller,
-          screens: _buildScreens(),
-          items: _navBarItems(),
+    return Consumer<NavigationProvider>(
+      builder: (context, navigationProvider, child) {
+        return Scaffold(
           backgroundColor: Colors.white,
-          navBarStyle: NavBarStyle.style9),
+          body: PersistentTabView(
+            context,
+            controller: _controller,
+            screens: _buildScreens(),
+            items: _navBarItems(),
+            backgroundColor: Colors.white,
+            navBarStyle: NavBarStyle.style9,
+            onItemSelected: (index) {
+              final authProvider =
+                  Provider.of<AuthProvider>(context, listen: false);
+
+              if ((index == 2 || index == 4) && !authProvider.isAuthenticated) {
+                print("HERE");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ),
+                ).then((value) {
+                  if (authProvider.isAuthenticated) {
+                    _controller.index = 3;
+                  } else {
+                    _controller.index = 0;
+                  }
+                });
+              }
+            },
+          ),
+        );
+      },
     );
   }
 }

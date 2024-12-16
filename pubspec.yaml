@@ -57,6 +57,8 @@ dependencies:
   toastification: ^2.3.0
   shimmer: ^3.0.0
   multiselect: ^0.1.1
+  states_rebuilder: ^6.4.0
+  persistent_bottom_nav_bar_v2: ^5.3.1
 
 dev_dependencies:
   flutter_test:
