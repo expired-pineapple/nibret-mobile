@@ -14,11 +14,12 @@ class ApiService {
   Future<Map<String, dynamic>> getProperties(
       {String? next, String? searchQuery, String? category}) async {
     try {
+      print(category);
       final Uri uri;
       final queryParameters = {
         'limit': '10',
         if (searchQuery != "") 'search': searchQuery,
-        if (category != null || category == "All") 'type': category
+        if (category != null && category != "All") 'type': category
       };
       if (next != null) {
         uri = Uri.parse(next).replace(
