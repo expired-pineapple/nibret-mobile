@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:nibret/widgets/map_with_custom_info.dart';
+import 'package:nibret/widgets/multiselect.dart';
 import 'package:nibret/widgets/property_skeleton.dart';
 import '../services/property_api.dart';
 import '../models/property.dart';
 import '../widgets/property_card.dart';
-import 'package:multiselect/multiselect.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -287,15 +287,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                   const SizedBox(height: 10),
                   DropDownMultiSelect(
-                      whenEmpty: "Select Property Type",
-                      onChanged: (List<String> x) {
-                        setState(() {
-                          _selectedPropertyType = x;
-                        });
-                      },
-                      options: _categories,
-                      selectedValues: _selectedPropertyType,
-                      separator: " & "),
+                    whenEmpty: "Select Property Type",
+                    onChanged: (List<String> x) {
+                      setState(() {
+                        _selectedPropertyType = x;
+                      });
+                    },
+                    options: _categories,
+                    selectedValues: _selectedPropertyType,
+                  ),
                   const SizedBox(height: 20),
                   const Text(
                     'Bedrooms',
