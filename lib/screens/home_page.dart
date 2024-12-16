@@ -70,16 +70,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void _handleTabChange() {
-    if (_tabController.indexIsChanging) {
-      setState(() {
-        _properties.clear();
-        _selectedCategory = _categories[_tabController.index];
-      });
-      _loadProperties(
-        search: _searchController.text,
-        category: _categories[_tabController.index],
-      );
-    }
+    setState(() {
+      _isLoading = true;
+      _properties.clear();
+      _selectedCategory = _categories[_tabController.index];
+    });
+    _loadProperties(
+      search: _searchController.text,
+      category: _categories[_tabController.index],
+    );
   }
 
   @override
@@ -613,7 +612,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         : _error != null
                             ? _buildErrorView()
                             : TabBarView(
-                                physics: const PageScrollPhysics(),
                                 controller: _tabController,
                                 children: _categories.map((category) {
                                   return RefreshIndicator(
