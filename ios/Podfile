@@ -1,7 +1,21 @@
 platform :ios, '14.0'
 
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
- use_frameworks!
+
+use_frameworks!
+
 target 'Runner' do
-  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  # Flutter Pod dependencies
+  project '../ios/Runner', {
+    'Debug' => :debug,
+    'Profile' => :release,
+    'Release' => :release,
+  }
+
+  # Flutter pods
+  pod 'Flutter', :path => '../flutter/bin/cache/artifacts/engine/ios'
+  
+  # Flutter application pods
+  flutter_application_path = '../'
+  load File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')
 end
