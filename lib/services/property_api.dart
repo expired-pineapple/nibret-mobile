@@ -31,17 +31,8 @@ class ApiService {
         );
       }
 
-  Future<Map<String, dynamic>> getProperties(
-      {int? offset, String? searchQuery, String? type, String? next}) async {
-    try {
-      final queryParameters = {
-        'offset': offset.toString(),
-        'limit': itemsPerPage.toString(),
-        if (searchQuery != null && searchQuery.isNotEmpty)
-          'search': searchQuery,
-      };
       final response = await _client
-          .get(Uri.parse('$baseUrl/properties').replace(
+          .get(uri.replace(
             queryParameters: queryParameters,
           ))
           .timeout(timeoutDuration);
