@@ -71,8 +71,8 @@ class _ExpandableTextState extends State<ExpandableText> {
               const TextSpan(text: _ellipsis),
               TextSpan(
                 text: 'Read more',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
+                style: const TextStyle(
+                  color: Color(0xFF0668FE),
                   fontWeight: FontWeight.bold,
                 ),
                 recognizer: _tapRecognizer,

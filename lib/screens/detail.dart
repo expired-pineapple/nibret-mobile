@@ -261,10 +261,14 @@ class _PropertyDetailsState extends State<PropertyDetails>
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0668FE),
+                          backgroundColor: const Color(0xFFFFFFFF),
                           padding: const EdgeInsets.symmetric(
                             vertical: 16,
                             horizontal: 24,
+                          ),
+                          side: const BorderSide(
+                            width: 1.0,
+                            color: Color(0xFF0668FE),
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),

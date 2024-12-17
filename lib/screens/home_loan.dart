@@ -117,7 +117,7 @@ class _HomeLoanScreenState extends State<HomeLoan> {
                   child: TextField(
                     onChanged: _onSearchChanged,
                     decoration: InputDecoration(
-                      hintText: 'Search destinations',
+                      hintText: 'Search loans',
                       hintStyle:
                           TextStyle(color: Colors.white.withOpacity(0.5)),
                       prefixIcon: const Icon(

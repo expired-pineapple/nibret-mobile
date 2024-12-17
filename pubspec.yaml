@@ -57,6 +57,8 @@ dependencies:
   toastification: ^2.3.0
   shimmer: ^3.0.0
   multiselect: ^0.1.1
+  states_rebuilder: ^6.4.0
+  connectivity_plus: ^6.1.1
 
 dev_dependencies:
   flutter_test:
