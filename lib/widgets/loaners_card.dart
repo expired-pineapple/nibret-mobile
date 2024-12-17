@@ -19,7 +19,6 @@ class _LoanerCardState extends State<LoanerCard> {
     if (await canLaunchUrl(phoneUri)) {
       await launchUrl(phoneUri);
     } else {
-      // Handle error - show snackbar or dialog
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Could not launch phone dialer')),

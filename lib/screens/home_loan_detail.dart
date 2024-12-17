@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nibret/models/home_loan.dart';
 import 'package:nibret/services/home_loan_api.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoanDetail extends StatefulWidget {
   final String propertyId;
@@ -19,11 +20,20 @@ class _LoanDetailState extends State<LoanDetail> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _initializeData();
+    _loadProperties();
   }
 
-  Future<void> _initializeData() async {
-    await _loadProperties();
+  Future<void> _launchPhoneDialer(String phoneNumber) async {
+    final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrl(phoneUri)) {
+      await launchUrl(phoneUri);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not launch phone dialer')),
+        );
+      }
+    }
   }
 
   Future<void> _loadProperties() async {
@@ -114,33 +124,77 @@ class _LoanDetailState extends State<LoanDetail> with TickerProviderStateMixin {
                                     ),
                                   ),
                                   const SizedBox(height: 20),
-                                  SizedBox(
-                                    height: 200,
-                                    child: ListView.builder(
-                                      itemCount: _property!.criteria?.length,
-                                      itemBuilder: (context, index) {
-                                        final c = _property!.criteria?[index];
-                                        return Column(children: [
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                  Icons.check_circle_outline),
-                                              Text(
-                                                c!.description,
-                                                style: const TextStyle(
-                                                  color: Color(0xFF252525),
-                                                  fontSize: 14,
-                                                  fontFamily: 'Poppins',
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                          const SizedBox(height: 6)
-                                        ]);
-                                      },
-                                    ),
-                                  )
+                                  ListView.builder(
+                                    scrollDirection: Axis.vertical,
+                                    shrinkWrap: true,
+                                    itemCount: _property!.criteria?.length,
+                                    itemBuilder: (context, index) {
+                                      final c = _property!.criteria?[index];
+                                      return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '-> ${c!.description}',
+                                              style: const TextStyle(
+                                                color: Color(0xFF252525),
+                                                fontSize: 14,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 6)
+                                          ]);
+                                    },
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(height: 12),
+                                      const Text(
+                                        "Contact Information",
+                                        textAlign: TextAlign.left,
+                                        style: TextStyle(
+                                          color: Color(0xFF252525),
+                                          fontSize: 18,
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        _property?.loaner.name ?? "",
+                                        style: const TextStyle(
+                                          color: Color(0xFF252525),
+                                          fontSize: 18,
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      InkWell(
+                                        onTap: () => _launchPhoneDialer(
+                                            _property?.loaner.phone ?? ""),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.phone,
+                                                color: Color(0xFF252525)),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              _property?.loaner.phone ?? "",
+                                              style: const TextStyle(
+                                                color: Color(0xFF252525),
+                                                fontSize: 16,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 ],
                               )
                             else

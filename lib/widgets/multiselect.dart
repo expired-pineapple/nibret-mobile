@@ -130,6 +130,7 @@ class DropDownMultiSelect<T> extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _DropDownMultiSelectState createState() => _DropDownMultiSelectState<T>();
 }
 
@@ -146,8 +147,8 @@ class _DropDownMultiSelectState<TState>
                 padding: widget.decoration != null
                     ? widget.decoration!.contentPadding != null
                         ? widget.decoration!.contentPadding!
-                        : EdgeInsets.symmetric(horizontal: 10)
-                    : EdgeInsets.symmetric(horizontal: 10),
+                        : const EdgeInsets.symmetric(horizontal: 10)
+                    : const EdgeInsets.symmetric(horizontal: 10),
               )),
         DropdownButtonFormField<TState>(
           hint: widget.hint,
