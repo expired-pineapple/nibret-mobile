@@ -277,7 +277,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
                         child: const Text(
                           'Request Tour',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Color(0xFF0668FE),
                             fontSize: 16,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.bold,
@@ -313,20 +313,23 @@ class _PropertyDetailsState extends State<PropertyDetails>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildAmenityRow(
-                          icon: Icons.bathroom,
-                          text: '${_property!.amenities.bathroom} Bathrooms',
-                        ),
+                        if (_property!.amenities.bathroom > 0)
+                          _buildAmenityRow(
+                            icon: Icons.bathroom,
+                            text: '${_property!.amenities.bathroom} Bathrooms',
+                          ),
                         const SizedBox(height: 12),
-                        _buildAmenityRow(
-                          icon: Icons.square_foot,
-                          text: '${_property!.amenities.area} m²',
-                        ),
+                        if (_property!.amenities.area > 0)
+                          _buildAmenityRow(
+                            icon: Icons.square_foot,
+                            text: '${_property!.amenities.area} m²',
+                          ),
                         const SizedBox(height: 12),
-                        _buildAmenityRow(
-                          icon: Icons.bed,
-                          text: '${_property!.amenities.bedroom} Beds',
-                        ),
+                        if (_property!.amenities.bedroom > 0)
+                          _buildAmenityRow(
+                            icon: Icons.bed,
+                            text: '${_property!.amenities.bedroom} Beds',
+                          ),
                       ],
                     ),
                   ),
