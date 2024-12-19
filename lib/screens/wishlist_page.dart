@@ -143,7 +143,10 @@ class _WishlistPageState extends State<WishlistPage>
 
   Widget _buildContent() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+          child: CircularProgressIndicator(
+        color: Color.fromARGB(255, 13, 71, 161),
+      ));
     }
     if (_error != null) {
       return _buildErrorView();

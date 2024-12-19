@@ -67,7 +67,10 @@ class _LoanDetailState extends State<LoanDetail> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(
+            child: CircularProgressIndicator(
+          color: Color.fromARGB(255, 13, 71, 161),
+        )),
       );
     }
 
@@ -89,7 +92,9 @@ class _LoanDetailState extends State<LoanDetail> with TickerProviderStateMixin {
                 ? const Center(
                     child: Padding(
                       padding: EdgeInsets.all(16.0),
-                      child: CircularProgressIndicator(),
+                      child: CircularProgressIndicator(
+                        color: Color.fromARGB(255, 13, 71, 161),
+                      ),
                     ),
                   )
                 : Column(

@@ -61,7 +61,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
       if (!mounted) return;
 
       setState(() {
-        _error = "Oops,Something went wrong.";
+        _error = "Something went wrong.";
         _isLoading = false;
       });
     }
@@ -90,7 +90,11 @@ class _PropertyDetailsState extends State<PropertyDetails>
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        backgroundColor: Colors.white,
+        body: Center(
+            child: CircularProgressIndicator(
+          color: Color.fromARGB(255, 13, 71, 161),
+        )),
       );
     }
 
@@ -241,7 +245,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '\$${_property!.price.toStringAsFixed(2)}',
+                        '${_property!.price.toStringAsFixed(2)} ${_property!.currency}',
                         style: const TextStyle(
                           fontSize: 20,
                           fontFamily: 'Poppins',
@@ -376,7 +380,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
                       ),
                     ),
                   ),
-                  if (_property?.loaners != null)
+                  if (_property!.loaners!.isNotEmpty)
                     Column(
                       children: [
                         const Text(

@@ -170,7 +170,9 @@ class _HomeLoanScreenState extends State<HomeLoan> {
                               return const Center(
                                 child: Padding(
                                   padding: EdgeInsets.all(16.0),
-                                  child: CircularProgressIndicator(),
+                                  child: CircularProgressIndicator(
+                                    color: Color.fromARGB(255, 13, 71, 161),
+                                  ),
                                 ),
                               );
                             }

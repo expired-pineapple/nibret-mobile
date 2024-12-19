@@ -187,15 +187,30 @@ class _PropertyCardState extends State<PropertyCard> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.bed, size: 16, color: Colors.grey[600]),
-                      Text('${widget.property.amenities.bedroom} Beds'),
-                      const Spacer(),
-                      Icon(Icons.bathroom, size: 16, color: Colors.grey[600]),
-                      Text('${widget.property.amenities.bathroom} Bathrooms'),
-                      const Spacer(),
-                      Icon(Icons.square_foot,
-                          size: 16, color: Colors.grey[600]),
-                      Text('${widget.property.amenities.area} m²'),
+                      if (widget.property.amenities.bedroom > 0)
+                        Row(children: [
+                          Icon(Icons.bed, size: 16, color: Colors.grey[600]),
+                          Text('${widget.property.amenities.bedroom} Beds'),
+                          const SizedBox(
+                            width: 8,
+                          )
+                        ]),
+                      if (widget.property.amenities.bathroom > 0)
+                        Row(children: [
+                          Icon(Icons.bathroom,
+                              size: 16, color: Colors.grey[600]),
+                          Text(
+                              '${widget.property.amenities.bathroom} Bathrooms'),
+                          const SizedBox(
+                            width: 8,
+                          )
+                        ]),
+                      if (widget.property.amenities.area > 0)
+                        Row(children: [
+                          Icon(Icons.square_foot,
+                              size: 16, color: Colors.grey[600]),
+                          Text('${widget.property.amenities.area} m²'),
+                        ])
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -203,7 +218,7 @@ class _PropertyCardState extends State<PropertyCard> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '\$${widget.property.price.toStringAsFixed(2)}',
+                        '${widget.property.price.toStringAsFixed(2)} ${widget.property.currency}',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,

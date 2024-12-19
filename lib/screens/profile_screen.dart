@@ -145,7 +145,10 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(
+            child: CircularProgressIndicator(
+          color: Color.fromARGB(255, 13, 71, 161),
+        )),
       );
     }
     return Scaffold(

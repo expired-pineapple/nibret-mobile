@@ -67,7 +67,10 @@ class _AuctionDetailState extends State<AuctionDetail>
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: Colors.white,
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(
+            child: CircularProgressIndicator(
+          color: Color.fromARGB(255, 13, 71, 161),
+        )),
       );
     }
 

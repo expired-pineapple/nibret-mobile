@@ -2,43 +2,34 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import '../models/property.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://nibret-vercel-django.vercel.app';
+  static const String baseUrl =
+      'https://nibret-vercel-django.vercel.app/properties';
   static const int itemsPerPage = 10;
 
-  final http.Client _client = http.Client();
-  static const Duration timeoutDuration = Duration(seconds: 30);
+  final dio = Dio();
   Future<Map<String, dynamic>> getProperties(
       {String? next, String? searchQuery, String? category}) async {
     try {
-      print(category);
-      final Uri uri;
+      final String uri;
       final queryParameters = {
         'limit': '10',
         if (searchQuery != "") 'search': searchQuery,
         if (category != null && category != "All") 'type': category
       };
       if (next != null) {
-        uri = Uri.parse(next).replace(
-          queryParameters: queryParameters,
-        );
+        uri = next;
       } else {
-        uri = Uri.parse('$baseUrl/properties').replace(
-          queryParameters: queryParameters,
-        );
+        uri = baseUrl;
       }
-
-      final response = await _client
-          .get(uri.replace(
-            queryParameters: queryParameters,
-          ))
-          .timeout(timeoutDuration);
+      final response = await dio.get(uri, queryParameters: queryParameters);
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final data = response.data;
+
         return data;
       } else {
         throw HttpException(
@@ -59,13 +50,10 @@ class ApiService {
 
   Future<List<Property>> searchProperties(filters) async {
     try {
-      final response = await _client
-          .post(Uri.parse('$baseUrl/properties/search/'),
-              headers: {"Content-Type": "application/json"},
-              body: json.encode(filters))
-          .timeout(timeoutDuration);
+      final response =
+          await dio.post('$baseUrl/search/', data: json.encode(filters));
       if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
+        List<dynamic> data = json.decode(response.data);
         return data.map((json) => Property.fromJson(json)).toList();
       } else {
         throw HttpException(
@@ -83,12 +71,11 @@ class ApiService {
 
   Future<Property> getProperty(String id) async {
     try {
-      final response = await _client
-          .get(Uri.parse('$baseUrl/properties/$id'))
-          .timeout(timeoutDuration);
+      final response = await dio.get('$baseUrl/$id/');
+      print(response.data);
 
       if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
+        final jsonData = response.data;
 
         final property = Property.fromJson(jsonData);
 
@@ -110,6 +97,6 @@ class ApiService {
   }
 
   void dispose() {
-    _client.close();
+    dio.close();
   }
 }

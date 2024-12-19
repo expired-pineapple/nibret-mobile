@@ -177,6 +177,7 @@ class Property {
   final String type;
   final List<LoanerResponse>? loaners;
   bool isWishListed;
+  String currency;
 
   Property(
       {required this.id,
@@ -189,10 +190,11 @@ class Property {
       required this.discount,
       required this.soldOut,
       required this.type,
+      this.currency = "ETB",
       this.loaners,
       this.isWishListed = false});
 
-  factory Property.fromJson(Map<String, dynamic> json) {
+  factory Property.fromJson(json) {
     return Property(
       id: json['id'],
       location: Location.fromJson(json['location']),
@@ -203,6 +205,7 @@ class Property {
       name: json['name'],
       description: json['description'],
       price: json['price'],
+      currency: json['currency'],
       discount: json['discount'],
       soldOut: json['sold_out'],
       type: json['type'],

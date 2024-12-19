@@ -113,7 +113,7 @@ class _MapScreenState extends State<MapScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString()),
+          content: const Text("Something went wrong"),
           action: SnackBarAction(
             label: 'Retry',
             onPressed: _loadProperties,
@@ -168,7 +168,9 @@ class _MapScreenState extends State<MapScreen> {
           ),
           if (_isLoading)
             const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: Color.fromARGB(255, 13, 71, 161),
+              ),
             ),
         ],
       ),

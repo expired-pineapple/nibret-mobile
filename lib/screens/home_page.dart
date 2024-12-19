@@ -33,6 +33,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   List<bool> wishlist = List.generate(10, (index) => false);
 
   late TabController _tabController;
+  late TabController _filterTabController;
   final List<String> _categories = [
     "All",
     "Luxury Apartment",
@@ -47,7 +48,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     "Office Space",
     "Warehouse",
   ];
-
+  final List<String> _status = ["Rental", "Sale", "Sold"];
   void _scrollListener() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
@@ -88,6 +89,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _loadProperties();
     _scrollController.addListener(_scrollListener);
     _searchController.addListener(_searchListener);
+    _filterTabController = TabController(
+      length: _status.length,
+      vsync: this,
+      animationDuration: const Duration(milliseconds: 300),
+    );
     _tabController = TabController(
       length: _categories.length,
       vsync: this,
@@ -157,7 +163,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       });
     } catch (e) {
       setState(() {
-        _error = "Something went wrong";
+        _error = "Something went wrong.";
         _isLoading = false;
         _scrolling = false;
       });
@@ -187,7 +193,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = "Something went wrong.";
         _isLoading = false;
       });
     }
@@ -205,6 +211,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   void _showFilterBottomSheet() {
     showModalBottomSheet(
+      enableDrag: true,
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -223,224 +230,261 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Filter',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            resetFilters();
-                          });
-                        },
-                        child: const Text('Reset Filters',
-                            style: TextStyle(color: Color(0xFF0668FE))),
-
-                      ),
-                    ],
+                  TabBar(
+                    controller: _filterTabController,
+                    labelColor: const Color(0xFF0668FE),
+                    indicatorColor: Colors.blue[900],
+                    unselectedLabelColor:
+                        const Color.fromARGB(255, 118, 121, 126),
+                    tabs: _status.map((status) {
+                      return Tab(text: status);
+                    }).toList(),
                   ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Price Range',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  RangeSlider(
-                    activeColor: const Color(0xFF0668FE),
-                    values: _priceRange,
-                    min: 0,
-                    max: 1000,
-                    divisions: 100,
-                    labels: RangeLabels(
-                      '\$${_priceRange.start.round()}k',
-                      '\$${_priceRange.end.round()}k',
-                    ),
-                    onChanged: (RangeValues values) {
-                      setState(() {
-                        _priceRange = values;
-                      });
-                    },
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('\$${_priceRange.start.round()}k'),
-                      Text('\$${_priceRange.end.round()}k'),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Property Type',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  DropDownMultiSelect(
-                    whenEmpty: "Select Property Type",
-                    onChanged: (List<String> x) {
-                      setState(() {
-                        _selectedPropertyType = x;
-                      });
-                    },
-                    options: _categories,
-                    selectedValues: _selectedPropertyType,
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Bedrooms',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _selectedBedrooms == null
-                                ? Colors.blue[900]
-                                : Colors.white,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _selectedBedrooms = null;
-                            });
-                          },
-                          child: Text(
-                            "Any",
-                            style: TextStyle(
-                              color: _selectedBedrooms == null
-                                  ? Colors.white
-                                  : Colors.black,
+                  Expanded(
+                    child: TabBarView(
+                      controller: _filterTabController,
+                      children: _status.map((status) {
+                        return Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Filter',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      resetFilters();
+                                    });
+                                  },
+                                  child: const Text(
+                                    'Reset Filters',
+                                    style: TextStyle(color: Color(0xFF0668FE)),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ),
-                        ...List.generate(4, (index) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    _selectedBedrooms == (index + 1)
-                                        ? Colors.blue[900]
-                                        : Colors.white,
+                            const SizedBox(height: 20),
+                            const Text(
+                              'Price Range',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                               ),
-                              onPressed: () {
+                            ),
+                            const SizedBox(height: 10),
+                            RangeSlider(
+                              activeColor: const Color(0xFF0668FE),
+                              values: _priceRange,
+                              min: 0,
+                              max: 1000,
+                              divisions: 100,
+                              labels: RangeLabels(
+                                '\$${_priceRange.start.round()}k',
+                                '\$${_priceRange.end.round()}k',
+                              ),
+                              onChanged: (RangeValues values) {
                                 setState(() {
-                                  _selectedBedrooms = index + 1;
+                                  _priceRange = values;
                                 });
                               },
-                              child: Text(
-                                "${index + 1}",
-                                style: TextStyle(
-                                  color: _selectedBedrooms == (index + 1)
-                                      ? Colors.white
-                                      : Colors.black,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('\$${_priceRange.start.round()}k'),
+                                Text('\$${_priceRange.end.round()}k'),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            const Text(
+                              'Property Type',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            DropDownMultiSelect(
+                              whenEmpty: "Select Property Type",
+                              onChanged: (List<String> x) {
+                                setState(() {
+                                  _selectedPropertyType = x;
+                                });
+                              },
+                              options: _categories,
+                              selectedValues: _selectedPropertyType,
+                            ),
+                            const SizedBox(height: 20),
+                            const Text(
+                              'Bedrooms',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              height: 40, // Added fixed height
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            _selectedBedrooms == null
+                                                ? Colors.blue[900]
+                                                : Colors.white,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _selectedBedrooms = null;
+                                        });
+                                      },
+                                      child: Text(
+                                        "Any",
+                                        style: TextStyle(
+                                          color: _selectedBedrooms == null
+                                              ? Colors.white
+                                              : Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                    ...List.generate(4, (index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4),
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                _selectedBedrooms == (index + 1)
+                                                    ? Colors.blue[900]
+                                                    : Colors.white,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              _selectedBedrooms = index + 1;
+                                            });
+                                          },
+                                          child: Text(
+                                            "${index + 1}",
+                                            style: TextStyle(
+                                              color: _selectedBedrooms ==
+                                                      (index + 1)
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                                  ],
                                 ),
                               ),
                             ),
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Bathrooms',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _selectedBathrooms == null
-                                ? Colors.blue[900]
-                                : Colors.white,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _selectedBathrooms = null;
-                            });
-                          },
-                          child: Text(
-                            "Any",
-                            style: TextStyle(
-                              color: _selectedBathrooms == null
-                                  ? Colors.white
-                                  : Colors.black,
-                            ),
-                          ),
-                        ),
-                        ...List.generate(4, (index) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    _selectedBathrooms == (index + 1)
-                                        ? Colors.blue[900]
-                                        : Colors.white,
+                            const SizedBox(height: 20),
+                            const Text(
+                              'Bathrooms',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _selectedBathrooms = index + 1;
-                                });
-                              },
-                              child: Text(
-                                "${index + 1}",
-                                style: TextStyle(
-                                  color: _selectedBathrooms == (index + 1)
-                                      ? Colors.white
-                                      : Colors.black,
+                            ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              height: 40, // Added fixed height
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            _selectedBathrooms == null
+                                                ? Colors.blue[900]
+                                                : Colors.white,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _selectedBathrooms = null;
+                                        });
+                                      },
+                                      child: Text(
+                                        "Any",
+                                        style: TextStyle(
+                                          color: _selectedBathrooms == null
+                                              ? Colors.white
+                                              : Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                    ...List.generate(4, (index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4),
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                _selectedBathrooms ==
+                                                        (index + 1)
+                                                    ? Colors.blue[900]
+                                                    : Colors.white,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              _selectedBathrooms = index + 1;
+                                            });
+                                          },
+                                          child: Text(
+                                            "${index + 1}",
+                                            style: TextStyle(
+                                              color: _selectedBathrooms ==
+                                                      (index + 1)
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                                  ],
                                 ),
                               ),
                             ),
-                          );
-                        }),
-                      ],
+                            const SizedBox(height: 20),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF0668FE),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  _searchProperties();
+                                  Navigator.pop(context);
+                                },
+                                child: const Text(
+                                  'Apply Filters',
+                                  style: TextStyle(
+                                      fontSize: 16, color: Colors.white),
+                                ),
+                              ),
+                            )
+                          ],
+                        );
+                      }).toList(),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0668FE),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      onPressed: () {
-                        _searchProperties();
-                        Navigator.pop(context);
-                      },
-                      child: const Text(
-                        'Apply Filters',
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-                    ),
-                  ),
+                  )
                 ],
               ),
             ),
@@ -628,7 +672,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                 child: Padding(
                                                   padding: EdgeInsets.all(16.0),
                                                   child:
-                                                      CircularProgressIndicator(),
+                                                      CircularProgressIndicator(
+                                                    color: Color.fromARGB(
+                                                        255, 13, 71, 161),
+                                                  ),
                                                 ),
                                               );
                                             }
