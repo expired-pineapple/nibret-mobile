@@ -186,14 +186,12 @@ class _PropertyCardState extends State<PropertyCard> {
                   ),
                   const SizedBox(height: 8),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       if (widget.property.amenities.bedroom > 0)
                         Row(children: [
                           Icon(Icons.bed, size: 16, color: Colors.grey[600]),
                           Text('${widget.property.amenities.bedroom} Beds'),
-                          const SizedBox(
-                            width: 8,
-                          )
                         ]),
                       if (widget.property.amenities.bathroom > 0)
                         Row(children: [
@@ -201,9 +199,6 @@ class _PropertyCardState extends State<PropertyCard> {
                               size: 16, color: Colors.grey[600]),
                           Text(
                               '${widget.property.amenities.bathroom} Bathrooms'),
-                          const SizedBox(
-                            width: 8,
-                          )
                         ]),
                       if (widget.property.amenities.area > 0)
                         Row(children: [

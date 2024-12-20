@@ -110,7 +110,7 @@ class _LoanDetailState extends State<LoanDetail> with TickerProviderStateMixin {
                               style: const TextStyle(
                                 color: Color(0xFF252525),
                                 fontSize: 18,
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Montserrat',
                                 fontWeight: FontWeight.normal,
                               ),
                             ),
@@ -124,7 +124,7 @@ class _LoanDetailState extends State<LoanDetail> with TickerProviderStateMixin {
                                     style: TextStyle(
                                       color: Color(0xFF252525),
                                       fontSize: 20,
-                                      fontFamily: 'Poppins',
+                                      fontFamily: 'Montserrat',
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -144,7 +144,7 @@ class _LoanDetailState extends State<LoanDetail> with TickerProviderStateMixin {
                                               style: const TextStyle(
                                                 color: Color(0xFF252525),
                                                 fontSize: 14,
-                                                fontFamily: 'Poppins',
+                                                fontFamily: 'Montserrat',
                                                 fontWeight: FontWeight.w400,
                                               ),
                                             ),
@@ -163,7 +163,7 @@ class _LoanDetailState extends State<LoanDetail> with TickerProviderStateMixin {
                                         style: TextStyle(
                                           color: Color(0xFF252525),
                                           fontSize: 18,
-                                          fontFamily: 'Poppins',
+                                          fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -173,7 +173,7 @@ class _LoanDetailState extends State<LoanDetail> with TickerProviderStateMixin {
                                         style: const TextStyle(
                                           color: Color(0xFF252525),
                                           fontSize: 18,
-                                          fontFamily: 'Poppins',
+                                          fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -191,7 +191,7 @@ class _LoanDetailState extends State<LoanDetail> with TickerProviderStateMixin {
                                               style: const TextStyle(
                                                 color: Color(0xFF252525),
                                                 fontSize: 16,
-                                                fontFamily: 'Poppins',
+                                                fontFamily: 'Montserrat',
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),

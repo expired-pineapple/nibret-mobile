@@ -12,24 +12,29 @@ class ApiService {
 
   final dio = Dio();
   Future<Map<String, dynamic>> getProperties(
-      {String? next, String? searchQuery, String? category}) async {
+      {String? next,
+      String? searchQuery,
+      String? category,
+      String? status}) async {
     try {
       final String uri;
       final queryParameters = {
-        'limit': '10',
+        'limit': '5',
         if (searchQuery != "") 'search': searchQuery,
-        if (category != null && category != "All") 'type': category
+        if (category != null && category != "All") 'type': category,
+        if (status != null) 'status': status,
       };
       if (next != null) {
         uri = next;
       } else {
         uri = baseUrl;
       }
+      print(queryParameters);
+      print("Response");
       final response = await dio.get(uri, queryParameters: queryParameters);
-
       if (response.statusCode == 200) {
         final data = response.data;
-
+        print(data);
         return data;
       } else {
         throw HttpException(

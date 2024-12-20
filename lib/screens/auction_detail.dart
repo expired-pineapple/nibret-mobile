@@ -201,7 +201,7 @@ class _AuctionDetailState extends State<AuctionDetail>
                     style: const TextStyle(
                       color: Color(0xFF252525),
                       fontSize: 26,
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -214,7 +214,7 @@ class _AuctionDetailState extends State<AuctionDetail>
                         style: const TextStyle(
                           color: Color.fromARGB(255, 131, 131, 131),
                           fontSize: 18,
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w400,
                         ),
                       ),
@@ -233,7 +233,7 @@ class _AuctionDetailState extends State<AuctionDetail>
                     style: TextStyle(
                       color: Color(0xFF252525),
                       fontSize: 26,
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -247,7 +247,7 @@ class _AuctionDetailState extends State<AuctionDetail>
                         'Starting Bid:',
                         style: TextStyle(
                           fontSize: 16,
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Montserrat',
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -268,7 +268,7 @@ class _AuctionDetailState extends State<AuctionDetail>
                         'Starting Date:',
                         style: TextStyle(
                           fontSize: 16,
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Montserrat',
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -289,7 +289,7 @@ class _AuctionDetailState extends State<AuctionDetail>
                         'End Date:',
                         style: TextStyle(
                           fontSize: 16,
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Montserrat',
                           fontWeight: FontWeight.bold,
                         ),
                       ),

@@ -59,6 +59,7 @@ dependencies:
   multiselect: ^0.1.1
   states_rebuilder: ^6.4.0
   connectivity_plus: ^6.1.1
+  dio: ^5.7.0
 
 dev_dependencies:
   flutter_test:
@@ -101,11 +102,14 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
+  fonts:
+    - family: Montserrat
+
+      fonts:
+        - asset: assets/montserrat/Montserrat-Regular.ttf
+        - asset: assets/montserrat/Montserrat-Italic.ttf
+        - asset: assets/montserrat/Montserrat-Bold.ttf
+        - asset: assets/montserrat/Montserrat-Medium.ttf
   #         style: italic
   #   - family: Trajan Pro
   #     fonts:

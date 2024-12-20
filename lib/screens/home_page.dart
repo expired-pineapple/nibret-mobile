@@ -25,6 +25,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   String? _error;
   String? _next;
   String? _selectedCategory;
+  String? _selectedStatus;
 
   late TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -56,7 +57,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         _loadProperties(
             search: _searchController.text,
             scrolled: true,
-            category: _selectedCategory);
+            category: _selectedCategory,
+            status: _selectedStatus);
       }
     }
   }
@@ -71,15 +73,26 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void _handleTabChange() {
+    _properties.clear();
     setState(() {
       _isLoading = true;
-      _properties.clear();
       _selectedCategory = _categories[_tabController.index];
     });
     _loadProperties(
-      search: _searchController.text,
-      category: _categories[_tabController.index],
-    );
+        search: _searchController.text,
+        category: _selectedCategory,
+        status: _categories[_tabController.index]);
+  }
+
+  void _handleStatusTabChange() {
+    _properties.clear();
+    setState(() {
+      _isLoading = true;
+      _selectedStatus = _status[_filterTabController.index];
+    });
+    _loadProperties(
+        category: _selectedCategory,
+        status: _status[_filterTabController.index]);
   }
 
   @override
@@ -100,6 +113,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       animationDuration: const Duration(milliseconds: 300),
     );
     _tabController.addListener(_handleTabChange);
+    _filterTabController.addListener(_handleStatusTabChange);
   }
 
   void _searchListener() {
@@ -138,7 +152,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future<void> _loadProperties(
-      {String? search, String? category, bool scrolled = false}) async {
+      {String? search,
+      String? category,
+      bool scrolled = false,
+      String? status}) async {
+    print("HERE");
     if (!mounted) return;
     if (!scrolled) {
       setState(() {
@@ -151,9 +169,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
     try {
       final data = await _apiService.getProperties(
-          next: _next, searchQuery: search, category: category);
+          next: _next, searchQuery: search, category: category, status: status);
 
       final List<dynamic> jsonList = data['results'];
+      print(jsonList);
       final newItems = jsonList.map((json) => Property.fromJson(json)).toList();
       setState(() {
         _properties.addAll(newItems);
@@ -163,7 +182,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       });
     } catch (e) {
       setState(() {
-        _error = "Something went wrong.";
+        _error = e.toString();
         _isLoading = false;
         _scrolling = false;
       });
@@ -184,6 +203,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         'max_price': _priceRange.end * 1000,
         'bathroom': _selectedBathrooms,
         'bedroom': _selectedBedrooms,
+        "status": _selectedStatus
       };
 
       final data = await _apiService.searchProperties(requestBody);
@@ -229,16 +249,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 controller: _filterTabController,
                 labelColor: const Color(0xFF0668FE),
                 indicatorColor: Colors.blue[900],
+                physics: const PageScrollPhysics(),
                 unselectedLabelColor: const Color.fromARGB(255, 118, 121, 126),
                 tabs: _status.map((status) {
-                  return Tab(text: status);
+                  return Tab(
+                      child: Text(
+                    status,
+                    style:
+                        const TextStyle(fontSize: 18, fontFamily: 'Montserrat'),
+                  ));
                 }).toList(),
               ),
               Expanded(
-                child: SingleChildScrollView(
-                  controller: scrollController,
+                child: SizedBox(
+                  height: 100,
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(20.0),
                     child: TabBarView(
                       controller: _filterTabController,
                       children: _status.map((status) {
@@ -246,14 +272,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            // Rest of your filter content remains the same
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  'Filter',
+                                  'Price Range',
                                   style: TextStyle(
-                                    fontSize: 24,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -265,22 +290,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   },
                                   child: const Text(
                                     'Reset Filters',
-                                    style: TextStyle(color: Color(0xFF0668FE)),
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color:
+                                            Color.fromARGB(255, 13, 71, 161)),
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 20),
-                            const Text(
-                              'Price Range',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
                             const SizedBox(height: 10),
                             RangeSlider(
-                              activeColor: const Color(0xFF0668FE),
+                              activeColor: Colors.blue[900],
                               values: _priceRange,
                               min: 0,
                               max: 1000,
@@ -458,12 +479,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(
+                              height: 25,
+                            ),
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF0668FE),
+                                  backgroundColor: Colors.blue[900],
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 15),
                                   shape: RoundedRectangleBorder(
@@ -593,6 +616,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   TabBar(
                     controller: _tabController,
                     labelColor: const Color(0xFF0668FE),
+                    physics: const PageScrollPhysics(),
                     indicatorColor: Colors.blue[900],
                     unselectedLabelColor:
                         const Color.fromARGB(255, 118, 121, 126),
@@ -665,7 +689,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       child: ListView.builder(
                                         controller: _scrollController,
                                         padding: const EdgeInsets.all(16),
-                                        itemCount: _properties.length + 1,
+                                        itemCount: _properties.length,
                                         itemBuilder: (context, index) {
                                           if (index == _properties.length) {
                                             if (_scrolling) {

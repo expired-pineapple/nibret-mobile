@@ -78,7 +78,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
           style: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 18,
-            fontFamily: 'Poppins',
+            fontFamily: 'Montserrat',
             color: Color(0xFF4A4A4A),
           ),
         ),
@@ -216,7 +216,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
                     style: const TextStyle(
                       color: Color(0xFF252525),
                       fontSize: 24,
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -234,7 +234,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
                         style: const TextStyle(
                           color: Color(0xFF838383),
                           fontSize: 16,
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w400,
                         ),
                       ),
@@ -248,7 +248,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
                         '${_property!.price.toStringAsFixed(2)} ${_property!.currency}',
                         style: const TextStyle(
                           fontSize: 20,
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Montserrat',
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -283,7 +283,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
                           style: TextStyle(
                             color: Color(0xFF0668FE),
                             fontSize: 16,
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Montserrat',
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -303,7 +303,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
                     style: TextStyle(
                       color: Color(0xFF252525),
                       fontSize: 24,
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Montserrat',
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -343,7 +343,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
                     style: TextStyle(
                       color: Color(0xFF252525),
                       fontSize: 24,
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Montserrat',
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -388,7 +388,7 @@ class _PropertyDetailsState extends State<PropertyDetails>
                           style: TextStyle(
                             color: Color(0xFF252525),
                             fontSize: 24,
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Montserrat',
                             fontWeight: FontWeight.bold,
                           ),
                         ),
