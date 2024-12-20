@@ -223,29 +223,30 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           maxChildSize: 0.9,
           minChildSize: 0.5,
           expand: false,
-          builder: (context, scrollController) => SingleChildScrollView(
-            controller: scrollController,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TabBar(
-                    controller: _filterTabController,
-                    labelColor: const Color(0xFF0668FE),
-                    indicatorColor: Colors.blue[900],
-                    unselectedLabelColor:
-                        const Color.fromARGB(255, 118, 121, 126),
-                    tabs: _status.map((status) {
-                      return Tab(text: status);
-                    }).toList(),
-                  ),
-                  Expanded(
+          builder: (context, scrollController) => Column(
+            children: [
+              TabBar(
+                controller: _filterTabController,
+                labelColor: const Color(0xFF0668FE),
+                indicatorColor: Colors.blue[900],
+                unselectedLabelColor: const Color.fromARGB(255, 118, 121, 126),
+                tabs: _status.map((status) {
+                  return Tab(text: status);
+                }).toList(),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
                     child: TabBarView(
                       controller: _filterTabController,
                       children: _status.map((status) {
                         return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
+                            // Rest of your filter content remains the same
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -484,10 +485,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         );
                       }).toList(),
                     ),
-                  )
-                ],
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
